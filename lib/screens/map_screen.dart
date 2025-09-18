@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:get/get.dart'; // 1. Add this import
+import 'package:wait_med/widgets/bottom_navigation_bar.dart';
+import '../core/app_theme.dart';
 
 class OpenStreetMapScreen extends StatefulWidget {
   const OpenStreetMapScreen({super.key});
@@ -11,24 +14,21 @@ class OpenStreetMapScreen extends StatefulWidget {
 }
 
 class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
-  int _currentIndex = 0; // Default: Home tab
+  int _currentIndex = 0; // Location tab is selected (current screen)
 
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
 
-    // 👉 Add navigation logic here
-    if (index == 0) {
-      // Location page
-      print("Go to Location page");
-    } else if (index == 1) {
-      // Home page
-      print("Go to Home page");
+    if (index == 1) {
+      // 2. Home icon pressed -> Go to Home Screen
+      Get.toNamed('/home');
     } else if (index == 2) {
-      // Profile page
-      print("Go to Profile page");
+      // Profile icon pressed -> Go to Account Settings
+      Get.toNamed('/account');
     }
+    // index 0 is current screen (map/location), so do nothing
   }
 
   @override
