@@ -25,17 +25,34 @@ class RegisterScreen extends StatelessWidget {
                 "Welcome Onboard!",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              const Text("Let’s help you meet up your tasks."),
+              const Text("Let's help you meet up your tasks."),
               const SizedBox(height: 20),
-              CustomTextField(hint: "Enter your full name", controller: nameCtrl),
+              CustomTextField(
+                hint: "Enter your full name",
+                controller: nameCtrl,
+              ),
               const SizedBox(height: 20),
               CustomTextField(hint: "Enter your email", controller: emailCtrl),
               const SizedBox(height: 20),
-              CustomTextField(hint: "Enter your password", controller: passCtrl, obscure: true),
+              CustomTextField(
+                hint: "Enter your password",
+                controller: passCtrl,
+                obscure: true,
+              ),
               const SizedBox(height: 20),
-              CustomTextField(hint: "Confirm your password", controller: confirmCtrl, obscure: true),
+              CustomTextField(
+                hint: "Confirm your password",
+                controller: confirmCtrl,
+                obscure: true,
+              ),
               const SizedBox(height: 20),
-              CustomButton(text: "Register", onPressed: () {}),
+              CustomButton(
+                text: "Register",
+                onPressed: () {
+                  // Navigate to login page after successful registration
+                  Get.toNamed('/login');
+                },
+              ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -45,11 +62,14 @@ class RegisterScreen extends StatelessWidget {
                     onTap: () => Get.toNamed('/login'),
                     child: const Text(
                       "Sign In",
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
