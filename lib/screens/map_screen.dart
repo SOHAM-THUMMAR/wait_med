@@ -2,10 +2,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../core/app_theme.dart';
 
-class OpenStreetMapScreen extends StatelessWidget {
+class OpenStreetMapScreen extends StatefulWidget {
   const OpenStreetMapScreen({super.key});
+
+  @override
+  State<OpenStreetMapScreen> createState() => _OpenStreetMapScreenState();
+}
+
+class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
+  int _currentIndex = 0; // Default: Home tab
+
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // 👉 Add navigation logic here
+    if (index == 0) {
+      // Location page
+      print("Go to Location page");
+    } else if (index == 1) {
+      // Home page
+      print("Go to Home page");
+    } else if (index == 2) {
+      // Profile page
+      print("Go to Profile page");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +110,10 @@ class OpenStreetMapScreen extends StatelessWidget {
             ],
           ),
         ],
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onTabTapped,
       ),
     );
   }
