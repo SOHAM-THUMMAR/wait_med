@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/app_theme.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
-class PersonalDetailsScreen extends StatelessWidget {
+class PersonalDetailsScreen extends StatefulWidget {
   const PersonalDetailsScreen({super.key});
+
+  @override
+  State<PersonalDetailsScreen> createState() => _PersonalDetailsScreenState();
+}
+
+class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
+  int _selectedIndex = 2; // Account tab is selected
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 1) {
+      // Navigate back to Home
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
+    } else if (index == 2) {
+      Navigator.of(context).pop(); // Go back to Account user screen
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +65,7 @@ class PersonalDetailsScreen extends StatelessWidget {
                         // Optional: Show edit form or additional functionality
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            AppTheme.primaryColor, // Use theme color
+                        backgroundColor: AppTheme.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -85,25 +106,19 @@ class PersonalDetailsScreen extends StatelessWidget {
                           "First Name :",
                           "Soham",
                         ),
-
                         const SizedBox(height: 20),
-
                         _buildDetailRow(
                           Icons.person_outline,
                           "Last Name :",
                           "Thummar",
                         ),
-
                         const SizedBox(height: 20),
-
                         _buildDetailRow(
                           Icons.email_outlined,
                           "Email address :",
                           "sthummar444@rku.ac.in",
                         ),
-
                         const SizedBox(height: 20),
-
                         _buildDetailRow(
                           Icons.lock_outline,
                           "Password :",
@@ -120,8 +135,7 @@ class PersonalDetailsScreen extends StatelessWidget {
                               _showLogoutDialog(context);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  AppTheme.errorColor, // Use theme color
+                              backgroundColor: AppTheme.errorColor,
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -144,42 +158,12 @@ class PersonalDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Bottom Navigation - Using AppTheme
-          BottomNavigationBar(
-            backgroundColor: AppTheme.primaryColor, // Use theme color
-            type: BottomNavigationBarType.fixed,
-            currentIndex: 2, // Account is selected
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white70,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            elevation: 0,
-            onTap: (index) {
-              if (index == 1) {
-                // Go back to home - pop twice to get back to home
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              } else if (index == 2) {
-                Navigator.of(context).pop(); // Go back to account user screen
-              }
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.location_on_outlined, size: 28),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined, size: 28),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person, size: 28),
-                label: '',
-              ),
-            ],
-          ),
         ],
+      ),
+
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
@@ -192,7 +176,7 @@ class PersonalDetailsScreen extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppTheme.primaryColor.withOpacity(0.1), // Use theme color
+            color: AppTheme.primaryColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
@@ -200,12 +184,10 @@ class PersonalDetailsScreen extends StatelessWidget {
               icon,
               color: AppTheme.primaryColor,
               size: 20,
-            ), // Use theme color
+            ),
           ),
         ),
-
         const SizedBox(width: 16),
-
         // Label and value
         Expanded(
           child: Column(
@@ -224,7 +206,7 @@ class PersonalDetailsScreen extends StatelessWidget {
                 value,
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppTheme.textColor, // Use theme color
+                  color: AppTheme.textColor,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -259,11 +241,10 @@ class PersonalDetailsScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Navigate to login and clear all previous routes
-                Get.offAllNamed('/login');
+                Get.offAllNamed('/login'); // Clear all routes
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.errorColor, // Use theme color
+                backgroundColor: AppTheme.errorColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

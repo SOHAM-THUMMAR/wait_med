@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_map: ^7.0.0   # check for latest version
+  latlong2: ^0.9.0
 
 dev_dependencies:
   flutter_test:
