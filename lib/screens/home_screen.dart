@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // 1. Add this import
 import 'account_settings_screen.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
@@ -18,14 +19,17 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
     });
 
-    if (index == 2) {
+    if (index == 0) {
+      // 2. Add this: Location icon pressed -> Go to Map Screen
+      Get.toNamed('/map');
+    } else if (index == 2) {
       // Profile icon pressed -> Go to Account Settings
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const AccountSettingsScreen()),
       );
     }
-    // You can handle index 0 (location) tap later
+    // index 1 is current screen (Home), so do nothing
   }
 
   @override

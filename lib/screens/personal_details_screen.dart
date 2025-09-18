@@ -18,7 +18,10 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
       _selectedIndex = index;
     });
 
-    if (index == 1) {
+    if (index == 0) {
+      // Add this: Location icon pressed -> Go to Map Screen
+      Get.toNamed('/map');
+    } else if (index == 1) {
       // Navigate back to Home
       Navigator.of(context).pop();
       Navigator.of(context).pop();
@@ -180,11 +183,7 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
-            child: Icon(
-              icon,
-              color: AppTheme.primaryColor,
-              size: 20,
-            ),
+            child: Icon(icon, color: AppTheme.primaryColor, size: 20),
           ),
         ),
         const SizedBox(width: 16),

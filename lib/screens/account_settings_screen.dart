@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // 1. Add this import
 import 'personal_details_screen.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
@@ -18,11 +19,13 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       _selectedIndex = index;
     });
 
-    if (index == 1) {
+    if (index == 0) {
+      // 2. Add this: Location icon pressed -> Go to Map Screen
+      Get.toNamed('/map');
+    } else if (index == 1) {
       Navigator.of(context).pop(); // Go back to home
-    } else if (index == 0) {
-      // Handle location tap if needed
     }
+    // index 2 is current screen (account), so do nothing
   }
 
   @override
@@ -210,10 +213,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textColor,
-            ),
+            style: TextStyle(fontSize: 14, color: AppTheme.textColor),
           ),
         ),
       ],

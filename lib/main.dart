@@ -1,8 +1,10 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wait_med/screens/account_settings_screen.dart';
 import 'package:wait_med/screens/personal_details_screen.dart';
 import 'package:wait_med/screens/home_screen.dart';
+import 'package:wait_med/screens/map_screen.dart'; // Add this import
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -31,6 +33,10 @@ class WaitMedApp extends StatelessWidget {
         GetPage(name: '/home', page: () => const HomeScreen()),
         GetPage(name: '/account', page: () => const AccountSettingsScreen()),
         GetPage(name: '/personal', page: () => const PersonalDetailsScreen()),
+        GetPage(
+          name: '/map',
+          page: () => const OpenStreetMapScreen(),
+        ), // Add this route
       ],
     );
   }
