@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wait_med/screens/account_settings_screen.dart';
+import 'package:wait_med/screens/personal_details_screen.dart';
+import 'package:wait_med/screens/home_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/forgot_password_screen.dart';
-import 'core/app_theme.dart'; // ✅ added import
+import 'core/app_theme.dart';
 
 void main() {
   runApp(const WaitMedApp());
@@ -18,13 +21,16 @@ class WaitMedApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "WaitMed",
-      theme: AppTheme.lightTheme, // ✅ using theme from app_theme.dart
+      theme: AppTheme.lightTheme,
       initialRoute: '/',
       getPages: [
         GetPage(name: '/', page: () => const SplashScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
         GetPage(name: '/register', page: () => const RegisterScreen()),
         GetPage(name: '/forgot', page: () => const ForgotPasswordScreen()),
+        GetPage(name: '/home', page: () => const HomeScreen()),
+        GetPage(name: '/account', page: () => const AccountSettingsScreen()),
+        GetPage(name: '/personal', page: () => const PersonalDetailsScreen()),
       ],
     );
   }

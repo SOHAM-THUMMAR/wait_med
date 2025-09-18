@@ -11,36 +11,68 @@ class LoginScreen extends StatelessWidget {
     final emailCtrl = TextEditingController();
     final passCtrl = TextEditingController();
 
+    void handleLogin() {
+      if (emailCtrl.text.isEmpty || passCtrl.text.isEmpty) {
+        Get.snackbar(
+          "Error",
+          "Please enter both email and password",
+          backgroundColor: Colors.red.shade100,
+          colorText: Colors.red.shade900,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      Get.offAllNamed('/home');
+    }
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 80),
-            const Text(
-              "Welcome back!",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Image.asset("assets/login_illustration.png", height: 150), // replace with your asset
-            const SizedBox(height: 20),
-            CustomTextField(hint: "Enter your email", controller: emailCtrl),
-            CustomTextField(hint: "Enter your password", controller: passCtrl, obscure: true),
-            const SizedBox(height: 10),
-            Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () => Get.toNamed('/forgot'),
-                child: const Text(
-                  "Forgot password",
-                  style: TextStyle(color: Colors.red),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 80),
+              const Text(
+                "Welcome back!",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              Image.asset(
+                "assets/login_illustration.png",
+                height: 150,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 20),
+              CustomTextField(
+                hint: "Enter your email",
+                controller: emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              CustomTextField(
+                hint: "Enter your password",
+                controller: passCtrl,
+                obscure: true,
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => Get.toNamed('/forgot'),
+                  child: const Text(
+                    "Forgot password?",
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            CustomButton(text: "Login", onPressed: () {}),
-          ],
+              const SizedBox(height: 20),
+              CustomButton(
+                text: "Login",
+                onPressed: handleLogin, // ✅ Now calls the handler
+              ),
+            ],
+          ),
         ),
       ),
     );
