@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'personal_details_screen.dart';
+import '../core/app_theme.dart';
 
 class AccountSettingsScreen extends StatelessWidget {
   const AccountSettingsScreen({super.key});
@@ -8,9 +9,9 @@ class AccountSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light grey background
+      backgroundColor: AppTheme.secondaryColor, // Use theme color
       appBar: AppBar(
-        backgroundColor: const Color(0xFF9C5C64), // Burgundy color
+        backgroundColor: AppTheme.primaryColor, // Use theme color
         title: const Text(
           "Account user",
           style: TextStyle(
@@ -42,7 +43,7 @@ class AccountSettingsScreen extends StatelessWidget {
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF9C5C64),
+                          color: AppTheme.primaryColor, // Use theme color
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: const Center(
@@ -57,7 +58,7 @@ class AccountSettingsScreen extends StatelessWidget {
                       const SizedBox(width: 16),
 
                       // User Info
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -66,11 +67,11 @@ class AccountSettingsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF333333),
+                                color: AppTheme.textColor, // Use theme color
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
+                            const SizedBox(height: 4),
+                            const Text(
                               "sthummar444@rku.ac.in",
                               style: TextStyle(
                                 fontSize: 12,
@@ -85,7 +86,7 @@ class AccountSettingsScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Account Settings Button - Exact design match
+                  // Account Settings Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -98,7 +99,8 @@ class AccountSettingsScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9C5C64),
+                        backgroundColor:
+                            AppTheme.primaryColor, // Use theme color
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -117,15 +119,16 @@ class AccountSettingsScreen extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Past/Recent Searches Button - Exact design match
+                  // Past/Recent Searches Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Optional: Show recent searches dialog or navigate to a detailed view
+                        // Optional: Show recent searches dialog
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9C5C64),
+                        backgroundColor:
+                            AppTheme.primaryColor, // Use theme color
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -144,7 +147,7 @@ class AccountSettingsScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Recent Searches List - Exact design match
+                  // Recent Searches List
                   Column(
                     children: [
                       _buildSearchItem(
@@ -173,41 +176,37 @@ class AccountSettingsScreen extends StatelessWidget {
             ),
           ),
 
-          // Bottom Navigation - Exact match
-          Container(
-            decoration: const BoxDecoration(color: Color(0xFF9C5C64)),
-            child: BottomNavigationBar(
-              backgroundColor: const Color(0xFF9C5C64),
-              type: BottomNavigationBarType.fixed,
-              currentIndex: 2, // Account is selected
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.white70,
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              elevation: 0,
-              onTap: (index) {
-                if (index == 1) {
-                  Navigator.of(context).pop(); // Go back to home
-                } else if (index == 0) {}
-              },
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.location_on_outlined, size: 28),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined, size: 28),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(
-                    Icons.person,
-                    size: 28,
-                  ), // Filled icon for selected state
-                  label: '',
-                ),
-              ],
-            ),
+          // Bottom Navigation - Using AppTheme
+          BottomNavigationBar(
+            backgroundColor: AppTheme.primaryColor, // Use theme color
+            type: BottomNavigationBarType.fixed,
+            currentIndex: 2, // Account is selected
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white70,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            elevation: 0,
+            onTap: (index) {
+              if (index == 1) {
+                Navigator.of(context).pop(); // Go back to home
+              } else if (index == 0) {
+                // Handle location tap if needed
+              }
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.location_on_outlined, size: 28),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, size: 28),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person, size: 28), // Filled for selected
+                label: '',
+              ),
+            ],
           ),
         ],
       ),
@@ -217,12 +216,15 @@ class AccountSettingsScreen extends StatelessWidget {
   Widget _buildSearchItem(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF333333)),
+        Icon(icon, size: 18, color: AppTheme.textColor), // Use theme color
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
+            style: TextStyle(
+              fontSize: 14,
+              color: AppTheme.textColor,
+            ), // Use theme color
           ),
         ),
       ],
