@@ -9,8 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   flutter_map: ^7.0.0   # check for latest version
   latlong2: ^0.9.0
+  firebase_core: ^2.24.0
+  cloud_firestore: ^4.17.5
+
+
 
 dev_dependencies:
   flutter_test:
