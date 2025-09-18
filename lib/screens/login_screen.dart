@@ -33,7 +33,6 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // Figma PNG Illustration - High Quality
               Container(
                 height: 220,
                 width: double.infinity,
