@@ -44,18 +44,19 @@ class LoginScreen extends StatelessWidget {
                 height: 150,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               CustomTextField(
                 hint: "Enter your email",
                 controller: emailCtrl,
                 keyboardType: TextInputType.emailAddress,
               ),
+              const SizedBox(height: 20),
               CustomTextField(
                 hint: "Enter your password",
                 controller: passCtrl,
                 obscure: true,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
@@ -66,11 +67,28 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
               CustomButton(
                 text: "Login",
-                onPressed: handleLogin, // ✅ Now calls the handler
+                onPressed: handleLogin, 
               ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don’t have an account? "),
+                  GestureDetector(
+                    onTap: () => Get.toNamed('/register'),
+                    child: const Text(
+                      "Register",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
