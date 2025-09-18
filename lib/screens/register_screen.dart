@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -35,7 +36,32 @@ class RegisterScreen extends StatelessWidget {
               const SizedBox(height: 20),
               CustomTextField(hint: "Confirm your password", controller: confirmCtrl, obscure: true),
               const SizedBox(height: 20),
-              CustomButton(text: "Register", onPressed: () {}),
+              
+              // ✅ Correct button
+              CustomButton(
+                text: "Register",
+                onPressed: () async {
+                  if (passCtrl.text != confirmCtrl.text) {
+                    Get.snackbar("Error", "Passwords do not match");
+                    return;
+                  }
+
+                  try {
+                    await FirebaseFirestore.instance.collection("users").add({
+                      "name": nameCtrl.text.trim(),
+                      "email": emailCtrl.text.trim(),
+                      "password": passCtrl.text.trim(), // ⚠️ only for testing
+                      "createdAt": Timestamp.now(),
+                    });
+
+                    Get.snackbar("Success", "Account created successfully");
+                    Get.toNamed('/login');
+                  } catch (e) {
+                    Get.snackbar("Error", e.toString());
+                  }
+                },
+              ),
+              
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
