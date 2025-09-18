@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'account_settings_screen.dart';
 import '../core/app_theme.dart';
+import '../core/bottom_navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -93,31 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Bottom Navigation Bar
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppTheme.primaryColor, // Use your existing color
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        elevation: 0,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.location_on_outlined, size: 28),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 28), // Filled for selected
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline, size: 28),
-            label: '',
-          ),
-        ],
-      ),
+        bottomNavigationBar: CustomBottomNavBar(
+    currentIndex: _selectedIndex,
+    onTap: _onItemTapped,
+    ),
     );
   }
 }
