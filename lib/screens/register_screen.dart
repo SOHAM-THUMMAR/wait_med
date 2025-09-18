@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -47,7 +46,13 @@ class RegisterScreen extends StatelessWidget {
                 obscure: true,
               ),
               const SizedBox(height: 20),
-              CustomButton(text: "Register", onPressed: () {}),
+              CustomButton(
+                text: "Register",
+                onPressed: () {
+                  // Navigate to login page after successful registration
+                  Get.toNamed('/login');
+                },
+              ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
