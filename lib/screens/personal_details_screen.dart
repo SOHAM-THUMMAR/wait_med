@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../core/app_theme.dart';
 
 class PersonalDetailsScreen extends StatelessWidget {
   const PersonalDetailsScreen({super.key});
@@ -7,9 +8,9 @@ class PersonalDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light grey background
+      backgroundColor: AppTheme.secondaryColor, // Use theme color
       appBar: AppBar(
-        backgroundColor: const Color(0xFF9C5C64), // Burgundy color
+        backgroundColor: AppTheme.primaryColor, // Use theme color
         title: const Text(
           "Account Settings",
           style: TextStyle(
@@ -34,7 +35,7 @@ class PersonalDetailsScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
 
-                  // Personal Details Button - Exact design match
+                  // Personal Details Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -42,7 +43,8 @@ class PersonalDetailsScreen extends StatelessWidget {
                         // Optional: Show edit form or additional functionality
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9C5C64),
+                        backgroundColor:
+                            AppTheme.primaryColor, // Use theme color
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -61,7 +63,7 @@ class PersonalDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  // Personal Details Display - Exact design match
+                  // Personal Details Display
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
@@ -110,7 +112,7 @@ class PersonalDetailsScreen extends StatelessWidget {
 
                         const SizedBox(height: 24),
 
-                        // Logout Button - Exact design match
+                        // Logout Button
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -118,9 +120,8 @@ class PersonalDetailsScreen extends StatelessWidget {
                               _showLogoutDialog(context);
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(
-                                0xFFDC3545,
-                              ), // Red color
+                              backgroundColor:
+                                  AppTheme.errorColor, // Use theme color
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -144,42 +145,39 @@ class PersonalDetailsScreen extends StatelessWidget {
             ),
           ),
 
-          // Bottom Navigation - Exact match
-          Container(
-            decoration: const BoxDecoration(color: Color(0xFF9C5C64)),
-            child: BottomNavigationBar(
-              backgroundColor: const Color(0xFF9C5C64),
-              type: BottomNavigationBarType.fixed,
-              currentIndex: 2, // Account is selected
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.white70,
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              elevation: 0,
-              onTap: (index) {
-                if (index == 1) {
-                  // Go back to home - pop twice to get back to home from account settings
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                } else if (index == 2) {
-                  Navigator.of(context).pop(); // Go back to account user screen
-                }
-              },
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.location_on_outlined, size: 28),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined, size: 28),
-                  label: '',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person, size: 28),
-                  label: '',
-                ),
-              ],
-            ),
+          // Bottom Navigation - Using AppTheme
+          BottomNavigationBar(
+            backgroundColor: AppTheme.primaryColor, // Use theme color
+            type: BottomNavigationBarType.fixed,
+            currentIndex: 2, // Account is selected
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.white70,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            elevation: 0,
+            onTap: (index) {
+              if (index == 1) {
+                // Go back to home - pop twice to get back to home
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              } else if (index == 2) {
+                Navigator.of(context).pop(); // Go back to account user screen
+              }
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.location_on_outlined, size: 28),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined, size: 28),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person, size: 28),
+                label: '',
+              ),
+            ],
           ),
         ],
       ),
@@ -189,22 +187,26 @@ class PersonalDetailsScreen extends StatelessWidget {
   Widget _buildDetailRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        // Icon circle - Exact design match
+        // Icon circle
         Container(
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFF9C5C64).withOpacity(0.1),
+            color: AppTheme.primaryColor.withOpacity(0.1), // Use theme color
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
-            child: Icon(icon, color: const Color(0xFF9C5C64), size: 20),
+            child: Icon(
+              icon,
+              color: AppTheme.primaryColor,
+              size: 20,
+            ), // Use theme color
           ),
         ),
 
         const SizedBox(width: 16),
 
-        // Label and value - Exact design match
+        // Label and value
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,9 +222,9 @@ class PersonalDetailsScreen extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: Color(0xFF333333),
+                  color: AppTheme.textColor, // Use theme color
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -261,7 +263,7 @@ class PersonalDetailsScreen extends StatelessWidget {
                 Get.offAllNamed('/login');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDC3545),
+                backgroundColor: AppTheme.errorColor, // Use theme color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),

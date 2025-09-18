@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'account_settings_screen.dart';
+import '../core/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -92,38 +93,30 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Bottom Navigation Bar
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF9C5C64), // Add this wrapper container
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: const Color(0xFF9C5C64), // Burgundy background
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          elevation: 0, // Important: Set to 0
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.location_on_outlined, size: 28),
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-                size: 28,
-              ), // Filled icon for selected state
-              label: '',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline, size: 28),
-              label: '',
-            ),
-          ],
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppTheme.primaryColor, // Use your existing color
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        elevation: 0,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.location_on_outlined, size: 28),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, size: 28), // Filled for selected
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline, size: 28),
+            label: '',
+          ),
+        ],
       ),
     );
   }
