@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'account_settings_screen.dart';
 import '../core/app_theme.dart';
-import '../core/bottom_navigation_bar.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -94,10 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Bottom Navigation Bar
-        bottomNavigationBar: CustomBottomNavBar(
-    currentIndex: _selectedIndex,
-    onTap: _onItemTapped,
-    ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
     );
   }
 }
