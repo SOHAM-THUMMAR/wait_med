@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // 1. Add this import
 import 'personal_details_screen.dart';
 import '../core/app_theme.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
-class AccountSettingsScreen extends StatelessWidget {
+class AccountSettingsScreen extends StatefulWidget {
   const AccountSettingsScreen({super.key});
+
+  @override
+  State<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
+}
+
+class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
+  int _selectedIndex = 2; // Account is selected
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 0) {
+      // 2. Add this: Location icon pressed -> Go to Map Screen
+      Get.toNamed('/map');
+    } else if (index == 1) {
+      Navigator.of(context).pop(); // Go back to home
+    }
+    // index 2 is current screen (account), so do nothing
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.secondaryColor, // Use theme color
+      backgroundColor: AppTheme.secondaryColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.primaryColor, // Use theme color
+        backgroundColor: AppTheme.primaryColor,
         title: const Text(
           "Account user",
           style: TextStyle(
@@ -42,7 +65,7 @@ class AccountSettingsScreen extends StatelessWidget {
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryColor, // Use theme color
+                          color: AppTheme.primaryColor,
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: const Center(
@@ -53,7 +76,6 @@ class AccountSettingsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 16),
 
                       // User Info
@@ -66,7 +88,7 @@ class AccountSettingsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.textColor, // Use theme color
+                                color: AppTheme.textColor,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -98,8 +120,7 @@ class AccountSettingsScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            AppTheme.primaryColor, // Use theme color
+                        backgroundColor: AppTheme.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -126,8 +147,7 @@ class AccountSettingsScreen extends StatelessWidget {
                         // Optional: Show recent searches dialog
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            AppTheme.primaryColor, // Use theme color
+                        backgroundColor: AppTheme.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -174,40 +194,13 @@ class AccountSettingsScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Bottom Navigation - Using AppTheme
-          BottomNavigationBar(
-            backgroundColor: AppTheme.primaryColor, // Use theme color
-            type: BottomNavigationBarType.fixed,
-            currentIndex: 2, // Account is selected
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white70,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            elevation: 0,
-            onTap: (index) {
-              if (index == 1) {
-                Navigator.of(context).pop(); // Go back to home
-              } else if (index == 0) {
-                // Handle location tap if needed
-              }
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.location_on_outlined, size: 28),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined, size: 28),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person, size: 28), // Filled for selected
-                label: '',
-              ),
-            ],
-          ),
         ],
+      ),
+
+      // ✅ Modular Bottom Navigation
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
@@ -215,15 +208,12 @@ class AccountSettingsScreen extends StatelessWidget {
   Widget _buildSearchItem(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppTheme.textColor), // Use theme color
+        Icon(icon, size: 18, color: AppTheme.textColor),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textColor,
-            ), // Use theme color
+            style: TextStyle(fontSize: 14, color: AppTheme.textColor),
           ),
         ),
       ],

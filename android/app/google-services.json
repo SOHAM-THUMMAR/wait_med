@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859608672558",
+    "project_id": "wait-med-af648",
+    "storage_bucket": "wait-med-af648.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859608672558:android:e24deb8317e92ced5c72bf",
+        "android_client_info": {
+          "package_name": "com.example.wait_med"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG5CoxmpT8T5T6z_IFtXBnOq7ky9tJLUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
