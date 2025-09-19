@@ -10,15 +10,43 @@ dependencies:
   flutter:
     sdk: flutter
 
+<<<<<<< HEAD
+  # Firebase Packages
+  firebase_core: ^4.0.0
+  firebase_auth: ^6.0.0
+  cloud_firestore: ^6.0.0
+
+  # Map and Location
   flutter_map: ^8.2.1
-  latlong2: ^0.9.0
+  latlong2: ^0.9.1
+  flutter_map_location_marker: ^10.1.0
+
+  # Geolocation
+  geolocator: ^14.0.2
+
+  # Networking
+  http: ^1.5.0
+
+  # State Management
+  get: ^4.7.2
+  
+=======
+  # Firebase (latest stable v6)
   firebase_core: ^4.1.0
   cloud_firestore: ^6.0.1
-  firebase_auth: ^6.0.2
-  geolocator: ^14.0.2
-  flutter_map_location_marker: ^10.1.0
-  
+>>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 
+  # Maps & location (compatible versions only)
+  flutter_map: ^7.0.0
+  flutter_map_location_marker: ^9.0.0
+  latlong2: ^0.9.0
+  geolocator: ^12.0.0
+
+  #dd
+  http: ^1.2.3
+
+  # State management / routing
+  get: ^4.6.6
 
 dev_dependencies:
   flutter_test:

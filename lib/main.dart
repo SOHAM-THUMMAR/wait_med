@@ -74,7 +74,9 @@ class AuthWrapper extends StatelessWidget {
         }
 
         // Loading state
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
       },
     );
   }
