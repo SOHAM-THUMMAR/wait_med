@@ -47,6 +47,65 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     }
   }
 
+  List<Marker> _buildMarkers() {
+    final hospitals = [
+      {
+        'name': 'Shree Giriraj Hospital',
+        'lat': 22.2987,
+        'lng': 70.7951,
+        'website': 'shreegirirajhospital.com',
+        'address': '27, Navjyot Park Society, Rajkot',
+        'hours': 'Open 24 hours',
+      },
+      {
+        'name': 'City Hospital',
+        'lat': 22.3091,
+        'lng': 70.8156,
+        'website': 'cityhospital.com',
+        'address': '10, MG Road, Rajkot',
+        'hours': 'Open 24 hours',
+      },
+      {
+        'name': 'Rajkot General Hospital',
+        'lat': 22.3125,
+        'lng': 70.7890,
+        'website': 'rajkotgeneral.com',
+        'address': '5, Ring Road, Rajkot',
+        'hours': 'Open 24 hours',
+      },
+    ];
+
+    return hospitals.map((hospital) {
+      final double lat = hospital['lat'] as double;
+      final double lng = hospital['lng'] as double;
+      final String name = hospital['name'] as String;
+      final String website = hospital['website'] as String;
+      final String address = hospital['address'] as String;
+      final String hours = hospital['hours'] as String;
+
+      return Marker(
+        point: LatLng(lat, lng),
+        width: 60,
+        height: 60,
+        child: GestureDetector(
+          onTap: () {
+            Get.to(() => SubmitCrowdLevelScreen(
+                  name: name,
+                  website: website,
+                  address: address,
+                  hours: hours,
+                ));
+          },
+          child: Icon(
+            Icons.local_hospital,
+            color: AppTheme.errorColor,
+            size: 35,
+          ),
+        ),
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,54 +143,10 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
           ),
           // ✅ Fixed: disable orientation sensor
           CurrentLocationLayer(
-            followOnLocationUpdate: FollowOnLocationUpdate.always,
-            turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
+            style: const LocationMarkerStyle(),
+// prevents MissingPluginException
           ),
-
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: LatLng(22.3039, 70.8022),
-                width: 60,
-                height: 60,
-                child: Icon(
-                  Icons.location_pin,
-                  color: AppTheme.primaryColor,
-                  size: 40,
-                ),
-              ),
-              Marker(
-                point: LatLng(22.2987, 70.7951),
-                width: 60,
-                height: 60,
-                child: Icon(
-                  Icons.local_hospital,
-                  color: AppTheme.errorColor,
-                  size: 35,
-                ),
-              ),
-              Marker(
-                point: LatLng(22.3091, 70.8156),
-                width: 60,
-                height: 60,
-                child: Icon(
-                  Icons.local_hospital,
-                  color: AppTheme.errorColor,
-                  size: 35,
-                ),
-              ),
-              Marker(
-                point: LatLng(22.3125, 70.7890),
-                width: 60,
-                height: 60,
-                child: Icon(
-                  Icons.local_hospital,
-                  color: AppTheme.errorColor,
-                  size: 35,
-                ),
-              ),
-            ],
-          ),
+          MarkerLayer(markers: _buildMarkers()),
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
