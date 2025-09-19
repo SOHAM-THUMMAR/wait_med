@@ -143,11 +143,7 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
             subdomains: const ['a', 'b', 'c'],
             userAgentPackageName: 'com.waitmed.app',
           ),
-          // ✅ Fixed: disable orientation sensor
-          CurrentLocationLayer(
-            style: const LocationMarkerStyle(),
-            // prevents MissingPluginException
-          ),
+          CurrentLocationLayer(style: const LocationMarkerStyle()),
           MarkerLayer(markers: _buildMarkers()),
         ],
       ),

@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Brand Colors
   static const Color primaryColor = Color(0xFF9C5C64); // burgundy/maroon button
-  static const Color secondaryColor = Color(0xFFF5F5F5); // light grey background
+  static const Color secondaryColor = Color(
+    0xFFF5F5F5,
+  ); // light grey background
   static const Color textColor = Color(0xFF333333); // dark grey text
   static const Color errorColor = Colors.redAccent;
-  static const Color accentColor = Color(0xFF9C5C64); // reuse brand color as "accent"
+  static const Color accentColor = Color(
+    0xFF9C5C64,
+  ); // reuse brand color as "accent"
 
   // Light Theme
   static ThemeData lightTheme = ThemeData(
@@ -23,10 +27,7 @@ class AppTheme {
         fontWeight: FontWeight.bold,
         color: textColor,
       ),
-      bodyMedium: TextStyle(
-        fontSize: 16,
-        color: textColor,
-      ),
+      bodyMedium: TextStyle(fontSize: 16, color: textColor),
       labelLarge: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
@@ -48,13 +49,8 @@ class AppTheme {
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 14),
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
   );
