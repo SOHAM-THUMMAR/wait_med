@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // 1. Add this import
+import 'package:get/get.dart';
 import 'account_settings_screen.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (index == 0) {
-      // 2. Add this: Location icon pressed -> Go to Map Screen
+      // Location icon pressed -> Go to Map Screen
       Get.toNamed('/map');
     } else if (index == 2) {
       // Profile icon pressed -> Go to Account Settings
@@ -35,14 +35,19 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppTheme.secondaryColor, // Use AppTheme for consistency
       appBar: AppBar(
         title: const Text(
           "Wait-Med",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 20,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFFB46C73),
+        backgroundColor: AppTheme.primaryColor,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -50,19 +55,32 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12),
-            const Text(
+
+            // Nearby Hospital Section Title
+            Text(
               "Nearby Hospital !",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textColor,
+              ),
             ),
             const SizedBox(height: 12),
 
-            // Hospital Info Card
+            // Hospital Info Card (exactly like your mockup)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFB46C73),
-                borderRadius: BorderRadius.circular(12),
+                color: AppTheme.primaryColor,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,22 +93,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 6),
+                  SizedBox(height: 8),
                   Text(
                     "27, Navjyot Park Society, Navjyot Park Main Rd,\n150 Feet Ring Rd - 360005",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      height: 1.3,
+                    ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(height: 16),
 
-            // Map Image (Static for now)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                'assets/images/map_placeholder.png',
-                fit: BoxFit.cover,
+            // Map Placeholder (simple, exactly like mockup)
+            GestureDetector(
+              onTap: () => Get.toNamed('/map'),
+              child: Container(
+                width: double.infinity,
+                height: 300, // Good height for map space
+                decoration: BoxDecoration(
+                  color: Colors.grey[200], // Light map-like background
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!, width: 1),
+                ),
+                // Empty placeholder - just like your mockup shows
+                child: Container(), // Completely empty, ready for map
               ),
             ),
           ],
