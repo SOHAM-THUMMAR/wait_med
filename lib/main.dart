@@ -1,9 +1,11 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
+import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
@@ -17,12 +19,11 @@ import 'core/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase with generated options
+  // Initialize Firebase
   final app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Debug: print to verify Firebase project
   debugPrint("✅ Firebase initialized: ${app.name}");
   debugPrint("🔗 ProjectID: ${app.options.projectId}");
 
@@ -38,9 +39,10 @@ class WaitMedApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "WaitMed",
       theme: AppTheme.lightTheme,
-      // AuthWrapper handles navigation based on login state
-      home: const AuthWrapper(),
+      // Start app with SplashScreen
+      home: const SplashScreen(),
       getPages: [
+        GetPage(name: '/splash', page: () => const SplashScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
         GetPage(name: '/register', page: () => const RegisterScreen()),
         GetPage(name: '/forgot', page: () => const ForgotPasswordScreen()),
@@ -53,7 +55,7 @@ class WaitMedApp extends StatelessWidget {
   }
 }
 
-/// Checks FirebaseAuth state and navigates accordingly
+/// Keeps Firebase auth state check intact
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -65,15 +67,12 @@ class AuthWrapper extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.active) {
           final user = snapshot.data;
           if (user != null) {
-            // ✅ User is logged in
             return const HomeScreen();
           } else {
-            // ❌ User not logged in
             return const LoginScreen();
           }
         }
 
-        // Loading state
         return const Scaffold(
           body: Center(child: CircularProgressIndicator()),
         );
