@@ -102,19 +102,16 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.name,
-                      style: const TextStyle(
+                      'Shree Giriraj Hospital',
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      widget.website,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                      'shreegirirajhospital.com',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                   ],
                 ),
@@ -130,10 +127,10 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
           ),
           const SizedBox(height: 10),
           Row(
-            children: [
-              const Icon(Icons.access_time, color: Colors.white),
-              const SizedBox(width: 5),
-              Text(widget.hours, style: const TextStyle(color: Colors.white)),
+            children: const [
+              Icon(Icons.access_time, color: Colors.white),
+              SizedBox(width: 5),
+              Text('Open 24 hours', style: TextStyle(color: Colors.white)),
             ],
           ),
           const SizedBox(height: 10),
