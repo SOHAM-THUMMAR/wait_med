@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ignore Flutter package configs
+pubspec.lock
+
+# Ignore generated plugin registrant file (iOS)
+ios/Runner/GeneratedPluginRegistrant.swift
+
+# If you want to ignore pubspec.yaml (not recommended, since it's needed for dependencies)
+pubspec.yaml
