@@ -21,8 +21,7 @@ class SubmitCrowdLevelScreen extends StatefulWidget {
   });
 
   @override
-  State<SubmitCrowdLevelScreen> createState() =>
-      _SubmitCrowdLevelScreenState();
+  State<SubmitCrowdLevelScreen> createState() => _SubmitCrowdLevelScreenState();
 }
 
 class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
@@ -103,16 +102,16 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.name,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
+                      'Shree Giriraj Hospital',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
-                      widget.website,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 14),
+                      'shreegirirajhospital.com',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                   ],
                 ),
@@ -128,11 +127,10 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
           ),
           const SizedBox(height: 10),
           Row(
-            children: [
-              const Icon(Icons.access_time, color: Colors.white),
-              const SizedBox(width: 5),
-              Text(widget.hours,
-                  style: const TextStyle(color: Colors.white)),
+            children: const [
+              Icon(Icons.access_time, color: Colors.white),
+              SizedBox(width: 5),
+              Text('Open 24 hours', style: TextStyle(color: Colors.white)),
             ],
           ),
           const SizedBox(height: 10),
@@ -159,7 +157,7 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
               '$_submittedCrowdCount people',
               style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -177,8 +175,11 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.notifications_active,
-                color: AppTheme.accentColor, size: 30),
+            const Icon(
+              Icons.notifications_active,
+              color: AppTheme.accentColor,
+              size: 30,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -187,7 +188,9 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
                   Text(
                     'WaitMed | Crowd Status!',
                     style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     'Can you tell us how many visitors are there, to help others in need?',
