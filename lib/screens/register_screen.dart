@@ -1,7 +1,6 @@
 // lib/screens/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
@@ -68,44 +67,50 @@ class RegisterScreen extends StatelessWidget {
                   final confirm = confirmCtrl.text.trim();
 
                   if (name.isEmpty || email.isEmpty || password.isEmpty) {
-                    Get.snackbar("Error", "All fields are required",
-                        snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar(
+                      "Error",
+                      "All fields are required",
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
                     return;
                   }
 
                   if (password != confirm) {
-                    Get.snackbar("Error", "Passwords do not match",
-                        snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar(
+                      "Error",
+                      "Passwords do not match",
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
                     return;
                   }
 
                   try {
-                    // ✅ Create user in Firebase Auth
-                    UserCredential userCred =
-                        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
-
-                    // ✅ Save extra info in Firestore
-                    await FirebaseFirestore.instance
-                        .collection("users")
-                        .doc(userCred.user!.uid)
-                        .set({
+                    // ✅ Add user to Firestore collection "users"
+                    await FirebaseFirestore.instance.collection("users").add({
                       "name": name,
                       "email": email,
+                      "password": password, // required for Firestore login
                       "createdAt": Timestamp.now(),
                     });
 
-                    Get.snackbar("Success", "Account created successfully",
-                        snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar(
+                      "Success",
+                      "Account created successfully",
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+
+                    // Navigate to login
                     Get.toNamed('/login');
-                  } on FirebaseAuthException catch (e) {
-                    Get.snackbar("Error", e.message ?? "Registration failed",
-                        snackPosition: SnackPosition.BOTTOM);
+                  } catch (e) {
+                    Get.snackbar(
+                      "Error",
+                      "Something went wrong",
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
                   }
                 },
               ),
+
               const SizedBox(height: 12),
 
               // Sign In Redirect
