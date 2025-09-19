@@ -11,6 +11,7 @@ import 'screens/forgot_password_screen.dart';
 import 'screens/account_settings_screen.dart';
 import 'screens/personal_details_screen.dart';
 import 'screens/map_screen.dart';
+
 import 'core/app_theme.dart';
 
 Future<void> main() async {
