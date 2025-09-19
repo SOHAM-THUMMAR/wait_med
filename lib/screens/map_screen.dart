@@ -1,17 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:get/get.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
-<<<<<<< HEAD
-import 'package:http/http.dart' as http;
-import 'package:wait_med/widgets/bottom_navigation_bar.dart';
-=======
 import '../widgets/bottom_navigation_bar.dart';
 import 'submit_crowd_level_screen.dart';
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 import '../core/app_theme.dart';
 
 class OpenStreetMapScreen extends StatefulWidget {
@@ -23,37 +17,21 @@ class OpenStreetMapScreen extends StatefulWidget {
 
 class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   int _currentIndex = 0;
-<<<<<<< HEAD
-  List<Marker> hospitalMarkers = [];
-=======
   final MapController _mapController = MapController();
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 
   @override
   void initState() {
     super.initState();
     _handleLocationPermission();
-    _loadHospitals();
   }
 
   Future<void> _handleLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-<<<<<<< HEAD
-    if (!serviceEnabled) {
-      Get.snackbar('Error', 'Location services are disabled.');
-      return;
-    }
-=======
     if (!serviceEnabled) return;
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.deniedForever) {
-      Get.snackbar('Error', 'Location permissions are permanently denied.');
-      return;
+      await Geolocator.requestPermission();
     }
   }
 
@@ -61,6 +39,7 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     setState(() {
       _currentIndex = index;
     });
+
     if (index == 1) {
       Get.toNamed('/home');
     } else if (index == 2) {
@@ -68,50 +47,6 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     }
   }
 
-<<<<<<< HEAD
-  Future<void> _loadHospitals() async {
-    try {
-      final url = Uri.parse(
-          'https://api.healthsites.io/v3/healthsites?geometry={"type":"Polygon","coordinates":[[[70.78,22.29],[70.83,22.29],[70.83,22.32],[70.78,22.32],[70.78,22.29]]]}&tags=amenity:hospital');
-
-      final response = await http.get(url, headers: {
-        'Authorization': 'Token 7f3de0314500b6f80ad9785e47168201e4f66bda',
-      });
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        List features = data['features'];
-
-        List<Marker> markers = features.map((feature) {
-          double lat = feature['geometry']['coordinates'][1];
-          double lng = feature['geometry']['coordinates'][0];
-          String name = feature['properties']['name'] ?? 'Hospital';
-
-          return Marker(
-            point: LatLng(lat, lng),
-            width: 50,
-            height: 50,
-            child: Tooltip(
-              message: name,
-              child: const Icon(
-                Icons.local_hospital,
-                color: Colors.red,
-                size: 35,
-              ),
-            ),
-          );
-        }).toList();
-
-        setState(() {
-          hospitalMarkers = markers;
-        });
-      } else {
-        Get.snackbar('Error', 'Failed to fetch hospitals.');
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Something went wrong: $e');
-    }
-=======
   List<Marker> _buildMarkers() {
     final hospitals = [
       {
@@ -169,7 +104,6 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
         ),
       );
     }).toList();
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
   }
 
   @override
@@ -207,29 +141,8 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
             subdomains: const ['a', 'b', 'c'],
             userAgentPackageName: 'com.waitmed.app',
           ),
-<<<<<<< HEAD
-          // Current location marker (works in older version)
-          CurrentLocationLayer(),
-          // Hospital markers
-          MarkerLayer(markers: hospitalMarkers),
-          // Optional fixed marker
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: LatLng(22.3039, 70.8022),
-                width: 60,
-                height: 60,
-                child: Icon(
-                  Icons.location_pin,
-                  color: AppTheme.primaryColor,
-                  size: 40,
-                ),
-              ),
-            ],
-=======
           CurrentLocationLayer(
             style: const LocationMarkerStyle(),
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
           ),
           MarkerLayer(markers: _buildMarkers()),
         ],
@@ -241,5 +154,3 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     );
   }
 }
-
-
