@@ -5,13 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:get/get.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
-<<<<<<< HEAD
 import 'package:http/http.dart' as http;
 import 'package:wait_med/widgets/bottom_navigation_bar.dart';
-=======
-import '../widgets/bottom_navigation_bar.dart';
-import 'submit_crowd_level_screen.dart';
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 import '../core/app_theme.dart';
 
 class OpenStreetMapScreen extends StatefulWidget {
@@ -23,11 +18,7 @@ class OpenStreetMapScreen extends StatefulWidget {
 
 class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
   int _currentIndex = 0;
-<<<<<<< HEAD
   List<Marker> hospitalMarkers = [];
-=======
-  final MapController _mapController = MapController();
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 
   @override
   void initState() {
@@ -38,14 +29,10 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
 
   Future<void> _handleLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-<<<<<<< HEAD
     if (!serviceEnabled) {
       Get.snackbar('Error', 'Location services are disabled.');
       return;
     }
-=======
-    if (!serviceEnabled) return;
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
 
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -68,7 +55,6 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     }
   }
 
-<<<<<<< HEAD
   Future<void> _loadHospitals() async {
     try {
       final url = Uri.parse(
@@ -111,65 +97,6 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     } catch (e) {
       Get.snackbar('Error', 'Something went wrong: $e');
     }
-=======
-  List<Marker> _buildMarkers() {
-    final hospitals = [
-      {
-        'name': 'Shree Giriraj Hospital',
-        'lat': 22.2987,
-        'lng': 70.7951,
-        'website': 'shreegirirajhospital.com',
-        'address': '27, Navjyot Park Society, Rajkot',
-        'hours': 'Open 24 hours',
-      },
-      {
-        'name': 'City Hospital',
-        'lat': 22.3091,
-        'lng': 70.8156,
-        'website': 'cityhospital.com',
-        'address': '10, MG Road, Rajkot',
-        'hours': 'Open 24 hours',
-      },
-      {
-        'name': 'Rajkot General Hospital',
-        'lat': 22.3125,
-        'lng': 70.7890,
-        'website': 'rajkotgeneral.com',
-        'address': '5, Ring Road, Rajkot',
-        'hours': 'Open 24 hours',
-      },
-    ];
-
-    return hospitals.map((hospital) {
-      final double lat = hospital['lat'] as double;
-      final double lng = hospital['lng'] as double;
-      final String name = hospital['name'] as String;
-      final String website = hospital['website'] as String;
-      final String address = hospital['address'] as String;
-      final String hours = hospital['hours'] as String;
-
-      return Marker(
-        point: LatLng(lat, lng),
-        width: 60,
-        height: 60,
-        child: GestureDetector(
-          onTap: () {
-            Get.to(() => SubmitCrowdLevelScreen(
-                  name: name,
-                  website: website,
-                  address: address,
-                  hours: hours,
-                ));
-          },
-          child: Icon(
-            Icons.local_hospital,
-            color: AppTheme.errorColor,
-            size: 35,
-          ),
-        ),
-      );
-    }).toList();
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
   }
 
   @override
@@ -194,12 +121,9 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
         ),
       ),
       body: FlutterMap(
-        mapController: _mapController,
         options: MapOptions(
           initialCenter: LatLng(22.3039, 70.8022),
           initialZoom: 12,
-          minZoom: 3,
-          maxZoom: 18,
         ),
         children: [
           TileLayer(
@@ -207,7 +131,6 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
             subdomains: const ['a', 'b', 'c'],
             userAgentPackageName: 'com.waitmed.app',
           ),
-<<<<<<< HEAD
           // Current location marker (works in older version)
           CurrentLocationLayer(),
           // Hospital markers
@@ -226,12 +149,7 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                 ),
               ),
             ],
-=======
-          CurrentLocationLayer(
-            style: const LocationMarkerStyle(),
->>>>>>> 31c948a91d91115e6dc23b336d8a2868e9dab7cd
           ),
-          MarkerLayer(markers: _buildMarkers()),
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
@@ -241,5 +159,3 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     );
   }
 }
-
-
