@@ -16,10 +16,14 @@ import 'core/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
+  // Initialize Firebase with generated options
+  final app = await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Debug: print to verify Firebase project
+  debugPrint("✅ Firebase initialized: ${app.name}");
+  debugPrint("🔗 ProjectID: ${app.options.projectId}");
 
   runApp(const WaitMedApp());
 }
@@ -33,7 +37,7 @@ class WaitMedApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "WaitMed",
       theme: AppTheme.lightTheme,
-      // Use AuthWrapper instead of initialRoute
+      // AuthWrapper handles navigation based on login state
       home: const AuthWrapper(),
       getPages: [
         GetPage(name: '/login', page: () => const LoginScreen()),

@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'wait-med-af648.firebasestorage.app',
     measurementId: 'G-N59XX5ZJYT',
   );
+
 }
