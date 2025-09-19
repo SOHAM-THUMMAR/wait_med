@@ -30,14 +30,35 @@ class RegisterScreen extends StatelessWidget {
               ),
               const Text("Let's help you meet up your tasks."),
               const SizedBox(height: 20),
-              CustomTextField(hint: "Enter your full name", controller: nameCtrl),
+
+              // Name
+              CustomTextField(
+                hint: "Enter your full name",
+                controller: nameCtrl,
+              ),
               const SizedBox(height: 20),
+
+              // Email
               CustomTextField(hint: "Enter your email", controller: emailCtrl),
               const SizedBox(height: 20),
-              CustomTextField(hint: "Enter your password", controller: passCtrl, obscure: true),
+
+              // Password
+              CustomTextField(
+                hint: "Enter your password",
+                controller: passCtrl,
+                obscure: true,
+              ),
               const SizedBox(height: 20),
-              CustomTextField(hint: "Confirm your password", controller: confirmCtrl, obscure: true),
+
+              // Confirm Password
+              CustomTextField(
+                hint: "Confirm your password",
+                controller: confirmCtrl,
+                obscure: true,
+              ),
               const SizedBox(height: 20),
+
+              // Register Button
               CustomButton(
                 text: "Register",
                 onPressed: () async {
@@ -47,18 +68,21 @@ class RegisterScreen extends StatelessWidget {
                   final confirm = confirmCtrl.text.trim();
 
                   if (name.isEmpty || email.isEmpty || password.isEmpty) {
-                    Get.snackbar("Error", "All fields are required", snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar("Error", "All fields are required",
+                        snackPosition: SnackPosition.BOTTOM);
                     return;
                   }
 
                   if (password != confirm) {
-                    Get.snackbar("Error", "Passwords do not match", snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar("Error", "Passwords do not match",
+                        snackPosition: SnackPosition.BOTTOM);
                     return;
                   }
 
                   try {
                     // ✅ Create user in Firebase Auth
-                    UserCredential userCred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    UserCredential userCred =
+                        await FirebaseAuth.instance.createUserWithEmailAndPassword(
                       email: email,
                       password: password,
                     );
@@ -73,14 +97,18 @@ class RegisterScreen extends StatelessWidget {
                       "createdAt": Timestamp.now(),
                     });
 
-                    Get.snackbar("Success", "Account created successfully", snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar("Success", "Account created successfully",
+                        snackPosition: SnackPosition.BOTTOM);
                     Get.toNamed('/login');
                   } on FirebaseAuthException catch (e) {
-                    Get.snackbar("Error", e.message ?? "Registration failed", snackPosition: SnackPosition.BOTTOM);
+                    Get.snackbar("Error", e.message ?? "Registration failed",
+                        snackPosition: SnackPosition.BOTTOM);
                   }
                 },
               ),
               const SizedBox(height: 12),
+
+              // Sign In Redirect
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -89,7 +117,8 @@ class RegisterScreen extends StatelessWidget {
                     onTap: () => Get.toNamed('/login'),
                     child: const Text(
                       "Sign In",
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
