@@ -18,7 +18,7 @@ class SplashScreen extends StatelessWidget {
               const Spacer(),
 
               // Figma PNG Illustration - High Quality
-              Container(
+              SizedBox(
                 height: 300,
                 width: double.infinity,
                 child: Image.asset(

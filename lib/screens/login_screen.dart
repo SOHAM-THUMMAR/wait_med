@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF333333)),
               ),
               const SizedBox(height: 30),
-              Container(
+              SizedBox(
                 height: 220,
                 width: double.infinity,
                 child: Image.asset('assets/images/login_illustration.png', fit: BoxFit.contain),
