@@ -3,18 +3,26 @@ import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import '../widgets/crowd_level_form.dart';
 
-// Enum to represent the different states of the screen
-enum CrowdSubmissionState {
-  prompt,
-  input,
-  submitted,
-}
+// Enum for submission states
+enum CrowdSubmissionState { prompt, input, submitted }
 
 class SubmitCrowdLevelScreen extends StatefulWidget {
-  const SubmitCrowdLevelScreen({super.key});
+  final String name;
+  final String website;
+  final String address;
+  final String hours;
+
+  const SubmitCrowdLevelScreen({
+    super.key,
+    required this.name,
+    required this.website,
+    required this.address,
+    required this.hours,
+  });
 
   @override
-  State<SubmitCrowdLevelScreen> createState() => _SubmitCrowdLevelScreenState();
+  State<SubmitCrowdLevelScreen> createState() =>
+      _SubmitCrowdLevelScreenState();
 }
 
 class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
@@ -44,6 +52,7 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        title: Text(widget.name),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -53,7 +62,6 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
             children: [
               _buildHospitalInfoCard(),
               const SizedBox(height: 20),
-
               if (_currentState == CrowdSubmissionState.prompt)
                 _buildPromptCard(),
               if (_currentState == CrowdSubmissionState.input)
@@ -67,10 +75,7 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: 1,
         onTap: (index) {
-          // handle navigation here
-          if (index == 0) {
-            Navigator.pop(context);
-          }
+          if (index == 0) Navigator.pop(context);
         },
       ),
     );
@@ -96,18 +101,18 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      'Shree Giriraj Hospital',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      widget.name,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'shreegirirajhospital.com',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                      widget.website,
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 14),
                     ),
                   ],
                 ),
@@ -117,16 +122,17 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
           const SizedBox(height: 10),
           const Divider(color: Colors.white54),
           const SizedBox(height: 10),
-          const Text(
-            '27, Navjyot Park Society, Navjyot Park Main Rd, 150 Feet ring Rd-360005',
-            style: TextStyle(color: Colors.white, fontSize: 14),
+          Text(
+            widget.address,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
           const SizedBox(height: 10),
           Row(
-            children: const [
-              Icon(Icons.access_time, color: Colors.white),
-              SizedBox(width: 5),
-              Text('Open 24 hours', style: TextStyle(color: Colors.white)),
+            children: [
+              const Icon(Icons.access_time, color: Colors.white),
+              const SizedBox(width: 5),
+              Text(widget.hours,
+                  style: const TextStyle(color: Colors.white)),
             ],
           ),
           const SizedBox(height: 10),
@@ -139,7 +145,7 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
               const Icon(Icons.star_border, color: Colors.yellow),
               const SizedBox(width: 10),
               Text(
-                'Crowd level : ${_submittedCrowdCount != null && _submittedCrowdCount! > 50 ? 'High' : 'Medium'}',
+                'Crowd level: ${_submittedCrowdCount != null && _submittedCrowdCount! > 50 ? 'High' : 'Medium'}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -218,6 +224,3 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
     );
   }
 }
-
-
-
