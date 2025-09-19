@@ -6,6 +6,7 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFFF5F5F5); // light grey background
   static const Color textColor = Color(0xFF333333); // dark grey text
   static const Color errorColor = Colors.redAccent;
+  static const Color accentColor = Color(0xFF9C5C64); // reuse brand color as "accent"
 
   // Light Theme
   static ThemeData lightTheme = ThemeData(
