@@ -1,8 +1,9 @@
-// lib/screens/map_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:get/get.dart'; // 1. Add this import
+import 'package:get/get.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:wait_med/widgets/bottom_navigation_bar.dart';
 import '../core/app_theme.dart';
 
@@ -14,7 +15,28 @@ class OpenStreetMapScreen extends StatefulWidget {
 }
 
 class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
-  int _currentIndex = 0; // Location tab is selected (current screen)
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _handleLocationPermission();
+  }
+
+  Future<void> _handleLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      await Geolocator.requestPermission();
+    }
+  }
 
   void _onTabTapped(int index) {
     setState(() {
@@ -22,13 +44,10 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
     });
 
     if (index == 1) {
-      // 2. Home icon pressed -> Go to Home Screen
       Get.toNamed('/home');
     } else if (index == 2) {
-      // Profile icon pressed -> Go to Account Settings
       Get.toNamed('/account');
     }
-    // index 0 is current screen (map/location), so do nothing
   }
 
   @override
@@ -63,9 +82,15 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
             subdomains: const ['a', 'b', 'c'],
             userAgentPackageName: 'com.waitmed.app',
           ),
+
+          // ✅ Show current location marker
+          CurrentLocationLayer(
+            followOnLocationUpdate: FollowOnLocationUpdate.always,
+            turnOnHeadingUpdate: TurnOnHeadingUpdate.never,
+          ),
+
           MarkerLayer(
             markers: [
-              // Main location marker
               Marker(
                 point: LatLng(22.3039, 70.8022),
                 width: 60,
@@ -76,7 +101,6 @@ class _OpenStreetMapScreenState extends State<OpenStreetMapScreen> {
                   size: 40,
                 ),
               ),
-              // Hospital markers - Sample hospitals in Rajkot
               Marker(
                 point: LatLng(22.2987, 70.7951),
                 width: 60,
