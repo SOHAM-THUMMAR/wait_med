@@ -10,7 +10,6 @@ import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import 'submit_crowd_level_screen.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 1; // Middle icon is selected initially (Home)
+  int _selectedIndex = 1; // Home selected by default
   final MapController _mapController = MapController();
   LatLng? _currentLocation;
 
@@ -39,12 +38,23 @@ class _HomeScreenState extends State<HomeScreen> {
       if (permission == LocationPermission.denied) return;
     }
 
+    // New geolocator API
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+    );
+
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+      locationSettings: locationSettings,
+    );
+
     setState(() {
       _currentLocation = LatLng(position.latitude, position.longitude);
+
+      // Move map safely after setting location
+      if (_currentLocation != null) {
+        _mapController.move(_currentLocation!, 14);
+      }
     });
-    _mapController.move(_currentLocation!, 14);
   }
 
   void _onItemTapped(int index) {
@@ -122,70 +132,104 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    // ... (appBar and other widgets)
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Nearby Hospital !",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          // This is the map container
-          Container(
-            width: double.infinity,
-            height: 300,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!, width: 1),
-            ),
-            child: _currentLocation == null
-                ? const Center(child: CircularProgressIndicator())
-                : FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: _currentLocation!,
-                      initialZoom: 14,
-                      minZoom: 3,
-                      maxZoom: 18,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Nearby Hospital Box
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.errorColor.withValues(alpha: 230),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    "Shree Giriraj Hospital",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    children: [
-                      TileLayer(
-                        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                        subdomains: const ['a', 'b', 'c'],
-                        userAgentPackageName: 'com.waitmed.app',
-                      ),
-                      CurrentLocationLayer(
-                        style: const LocationMarkerStyle(),
-                      ),
-                      MarkerLayer(markers: _buildMarkers()),
-                    ],
                   ),
-          ),
-          // Add a section for the list of hospitals below the map
-          const SizedBox(height: 20),
-          Text(
-            "All Hospitals",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textColor,
+                  SizedBox(height: 4),
+                  Text(
+                    "27, Navjyot Park Society, Navjyot Park Main Rd,\n150 Feet Ring Rd - 360005",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          // You would then add a ListView.builder or similar widget here
-          // to display the hospital list dynamically.
-          // For now, you can add a static list item for testing.
-        ],
+
+            const SizedBox(height: 12),
+
+            // Map Box
+            Container(
+              width: double.infinity,
+              height: 300,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: _currentLocation == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : FlutterMap(
+                        mapController: _mapController,
+                        options: MapOptions(
+                          initialCenter: _currentLocation!,
+                          initialZoom: 14,
+                          minZoom: 3,
+                          maxZoom: 18,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: const ['a', 'b', 'c'],
+                            userAgentPackageName: 'com.waitmed.app',
+                          ),
+                          CurrentLocationLayer(
+                            style: const LocationMarkerStyle(),
+                          ),
+                          MarkerLayer(markers: _buildMarkers()),
+                        ],
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // All Hospitals Title
+            Text(
+              "All Hospitals",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textColor,
+              ),
+            ),
+
+            // Here you can add ListView.builder or any list for hospitals
+          ],
+        ),
       ),
-    ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
