@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 
+
 class PersonalDetailsScreen extends StatefulWidget {
   const PersonalDetailsScreen({super.key});
 

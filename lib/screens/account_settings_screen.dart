@@ -4,6 +4,7 @@ import 'personal_details_screen.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 
+
 class AccountSettingsScreen extends StatefulWidget {
   const AccountSettingsScreen({super.key});
 

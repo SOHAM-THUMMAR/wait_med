@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 
+
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 

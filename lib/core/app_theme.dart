@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class AppTheme {
   // Brand Colors
   static const Color primaryColor = Color(0xFF9C5C64); // burgundy/maroon button
