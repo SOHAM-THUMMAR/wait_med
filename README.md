@@ -97,13 +97,13 @@ flutter run
 Here’s a simplified view:
 
 lib/
-├── core/\n
-├── controllers/\n
-├── models/
-├── services/
-├── widgets/
-├── screens/
-└── main.dart
+├── core/ <br>
+├── controllers/<br>
+├── models/<br>
+├── services/<br>
+├── widgets/<br>
+├── screens/<br>
+└── main.dart<br>
 
 
 Each folder has isolated responsibilities (UI vs logic vs data).
