@@ -4,7 +4,7 @@ WaitMed is a Flutter mobile app designed to help users find nearby hospitals in 
 
 ---
 
-## 📌 Table of Contents
+### 📌 Table of Contents
 
 - [Features](#features)  
 - [Tech Stack](#tech-stack)  
@@ -20,7 +20,7 @@ WaitMed is a Flutter mobile app designed to help users find nearby hospitals in 
 
 ---
 
-## 🚀 Features
+### 🚀 Features
 
 - Search hospitals by name or location  
 - Display search results as markers on a map  
@@ -31,7 +31,7 @@ WaitMed is a Flutter mobile app designed to help users find nearby hospitals in 
 
 ---
 
-## 🧰 Tech Stack
+### 🧰 Tech Stack
 
 - **Flutter** — UI & cross-platform app  
 - **flutter_map & latlong2** — for map rendering & geographic computations  
@@ -42,7 +42,7 @@ WaitMed is a Flutter mobile app designed to help users find nearby hospitals in 
 
 ---
 
-## 🏗 Architecture & Modules
+### 🏗 Architecture & Modules
 
 WaitMed follows a modular structure:
 
@@ -57,7 +57,7 @@ This separation keeps UI, logic, and data decoupled and easier to maintain.
 
 ---
 
-## 🛠 Getting Started
+### 🛠 Getting Started
 
 ### Prerequisites
 
@@ -92,7 +92,7 @@ flutter run
    git clone https://github.com/SOHAM-THUMMAR/wait_med.git
    cd wait_med
 
-## 🗂 Folder Structure
+### 🗂 Folder Structure
 
 Here’s a simplified view:
 
@@ -108,7 +108,7 @@ lib/<br>
 
 Each folder has isolated responsibilities (UI vs logic vs data).
 
-## 🔍 How It Works
+### 🔍 How It Works
 
 On the map screen, the user sees base hospital markers and their current location.
 
@@ -122,7 +122,7 @@ Markers are rebuilt via the HospitalMarker widget.
 
 When tapping a marker, the user navigates to SubmitCrowdLevelScreen to view or submit crowd info.##
 
-## 📈 Future Enhancements
+### 📈 Future Enhancements
 
 Show a scrollable list of search results under the search bar
 
@@ -138,7 +138,7 @@ Display crowd trends / statistics
 
 Add directions / routing to a selected hospital
 
-## 👥 Contributing
+### 👥 Contributing
 
 Fork the repo
 
