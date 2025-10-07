@@ -198,7 +198,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         ],
       ),
 
-      // ✅ Modular Bottom Navigation
+      // Modular Bottom Navigation
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

@@ -86,7 +86,7 @@ class RegisterScreen extends StatelessWidget {
                   }
 
                   try {
-                    // ✅ Add user to Firestore collection "users"
+                    // Add user to Firestore collection "users"
                     await FirebaseFirestore.instance.collection("users").add({
                       "name": name,
                       "email": email,
