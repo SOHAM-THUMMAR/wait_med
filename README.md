@@ -92,7 +92,7 @@ flutter run
    git clone https://github.com/SOHAM-THUMMAR/wait_med.git
    cd wait_med
 
-🗂 Folder Structure
+## 🗂 Folder Structure
 
 Here’s a simplified view:
 
@@ -108,7 +108,7 @@ lib/
 
 Each folder has isolated responsibilities (UI vs logic vs data).
 
-🔍 How It Works
+## 🔍 How It Works
 
 On the map screen, the user sees base hospital markers and their current location.
 
@@ -138,7 +138,7 @@ Display crowd trends / statistics
 
 Add directions / routing to a selected hospital
 
-👥 Contributing
+## 👥 Contributing
 
 Fork the repo
 
