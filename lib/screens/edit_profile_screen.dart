@@ -61,10 +61,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final updateData = {'name': newName};
       if (newPassword.isNotEmpty) updateData['password'] = newPassword;
 
-      // ✅ Update Firestore
+      //  Update Firestore
       await userDocRef.update(updateData);
 
-      // ✅ Update local model (only name)
+      // Update local model (only name)
       authController.updateUserInfo(newName);
 
       Get.snackbar(
