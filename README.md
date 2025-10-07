@@ -96,7 +96,7 @@ flutter run
 
 Here’s a simplified view:
 
-lib/
+lib/<br>
 ├── core/ <br>
 ├── controllers/<br>
 ├── models/<br>
