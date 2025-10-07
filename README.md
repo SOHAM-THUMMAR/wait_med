@@ -120,9 +120,9 @@ It converts those into Hospital models, updates the controller state.
 
 Markers are rebuilt via the HospitalMarker widget.
 
-When tapping a marker, the user navigates to SubmitCrowdLevelScreen to view or submit crowd info.
+When tapping a marker, the user navigates to SubmitCrowdLevelScreen to view or submit crowd info.##
 
-📈 Future Enhancements
+## 📈 Future Enhancements
 
 Show a scrollable list of search results under the search bar
 
