@@ -3,8 +3,6 @@ import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import '../widgets/crowd_level_form.dart';
 
-
-
 // Enum for submission states
 enum CrowdSubmissionState { prompt, input, submitted }
 
@@ -83,6 +81,18 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
   }
 
   Widget _buildHospitalInfoCard() {
+    // Dynamic crowd status text based on submitted data
+    String crowdStatus;
+    if (_submittedCrowdCount == null) {
+      crowdStatus = 'Not reported yet';
+    } else if (_submittedCrowdCount! > 50) {
+      crowdStatus = 'High';
+    } else if (_submittedCrowdCount! > 20) {
+      crowdStatus = 'Medium';
+    } else {
+      crowdStatus = 'Low';
+    }
+
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -103,17 +113,21 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //Dynamic hospital name
                     Text(
-                      'Shree Giriraj Hospital',
-                      style: TextStyle(
+                      widget.name,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    //Dynamic website (with fallback)
                     Text(
-                      'shreegirirajhospital.com',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                      widget.website.isNotEmpty
+                          ? widget.website
+                          : 'No website available',
+                      style: const TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                   ],
                 ),
@@ -123,29 +137,34 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
           const SizedBox(height: 10),
           const Divider(color: Colors.white54),
           const SizedBox(height: 10),
+
+          //Dynamic address
           Text(
             widget.address,
             style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
           const SizedBox(height: 10),
+
+          //Dynamic hours info
           Row(
-            children: const [
-              Icon(Icons.access_time, color: Colors.white),
-              SizedBox(width: 5),
-              Text('Open 24 hours', style: TextStyle(color: Colors.white)),
+            children: [
+              const Icon(Icons.access_time, color: Colors.white),
+              const SizedBox(width: 5),
+              Text(
+                widget.hours.isNotEmpty ? widget.hours : 'Hours not available',
+                style: const TextStyle(color: Colors.white),
+              ),
             ],
           ),
           const SizedBox(height: 10),
+
+          //Dynamic crowd info
           Row(
             children: [
-              const Icon(Icons.star, color: Colors.yellow),
-              const Icon(Icons.star, color: Colors.yellow),
-              const Icon(Icons.star, color: Colors.yellow),
-              const Icon(Icons.star_half, color: Colors.yellow),
-              const Icon(Icons.star_border, color: Colors.yellow),
+              const Icon(Icons.people, color: Colors.yellow),
               const SizedBox(width: 10),
               Text(
-                'Crowd level: ${_submittedCrowdCount != null && _submittedCrowdCount! > 50 ? 'High' : 'Medium'}',
+                'Crowd level: $crowdStatus',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -156,7 +175,7 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
           if (_submittedCrowdCount != null) ...[
             const SizedBox(height: 5),
             Text(
-              '$_submittedCrowdCount people',
+              '${_submittedCrowdCount!} people currently reported',
               style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ],
