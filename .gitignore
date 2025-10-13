@@ -52,3 +52,4 @@ ios/Runner/GeneratedPluginRegistrant.swift
 
 # If you want to ignore pubspec.yaml (not recommended, since it's needed for dependencies)
 pubspec.yaml
+pubspec.lock
