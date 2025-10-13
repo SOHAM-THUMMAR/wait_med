@@ -38,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
       if (permission == LocationPermission.denied) return;
     }
 
-    // New geolocator API
     LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.high,
     );
@@ -50,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _currentLocation = LatLng(position.latitude, position.longitude);
 
-      // Move map safely after setting location
       if (_currentLocation != null) {
         _mapController.move(_currentLocation!, 14);
       }
@@ -134,18 +132,33 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Nearby Hospital Box
-            Container(
+      appBar: AppBar(
+        title: const Text("WaitMed"),
+        backgroundColor: AppTheme.primaryColor,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AccountSettingsScreen()),
+              );
+            },
+          )
+        ],
+      ),
+      body: Column(
+        children: [
+          // Nearby Hospital Box
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.errorColor.withValues(alpha: 230),
-                borderRadius: BorderRadius.circular(10),
+                color: AppTheme.errorColor.withAlpha(230),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,41 +166,30 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     "Shree Giriraj Hospital",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: 6),
                   Text(
                     "27, Navjyot Park Society, Navjyot Park Main Rd,\n150 Feet Ring Rd - 360005",
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: Colors.white,
                     ),
                   ),
                 ],
               ),
             ),
+          ),
 
-            const SizedBox(height: 12),
-
-            // Map Box
-            Container(
-              width: double.infinity,
-              height: 300,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+          // Map Container
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 child: _currentLocation == null
                     ? const Center(child: CircularProgressIndicator())
                     : FlutterMap(
@@ -213,22 +215,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
               ),
             ),
+          ),
 
-            const SizedBox(height: 20),
-
-            // All Hospitals Title
-            Text(
-              "All Hospitals",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textColor,
+          // All Hospitals Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "All Hospitals",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textColor,
+                ),
               ),
             ),
-
-            // Here you can add ListView.builder or any list for hospitals
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
