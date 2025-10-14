@@ -1,0 +1,26 @@
+  final List<Map<String, dynamic>> _hospitals = [
+    {
+      'name': 'Shree Giriraj Hospital',
+      'lat': 22.2987,
+      'lng': 70.7951,
+      'website': 'shreegirirajhospital.com',
+      'address': '27, Navjyot Park Society, Rajkot',
+      'hours': 'Open 24 hours',
+    },
+    {
+      'name': 'City Hospital',
+      'lat': 22.3091,
+      'lng': 70.8156,
+      'website': 'cityhospital.com',
+      'address': '10, MG Road, Rajkot',
+      'hours': 'Open 24 hours',
+    },
+    {
+      'name': 'Rajkot General Hospital',
+      'lat': 22.3125,
+      'lng': 70.7890,
+      'website': 'rajkotgeneral.com',
+      'address': '5, Ring Road, Rajkot',
+      'hours': 'Open 24 hours',
+    },
+  ];

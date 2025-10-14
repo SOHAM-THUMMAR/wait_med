@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'account_settings_screen.dart';
 import '../core/app_theme.dart';
@@ -18,48 +20,153 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 1; // Home selected by default
+  int _selectedIndex = 1;
   final MapController _mapController = MapController();
   LatLng? _currentLocation;
+
+  final List<Map<String, dynamic>> _hospitals = [];
+  Map<String, dynamic>? _nearestHospital;
+  bool _isFetching = false;
 
   @override
   void initState() {
     super.initState();
-    _determinePosition();
+    _initLocationAndFetch();
+  }
+
+  Future<void> _initLocationAndFetch() async {
+    await _determinePosition(); // Get location first
+    if (_currentLocation != null) {
+      _fetchNearbyHospitals(_currentLocation!); // Fetch hospitals in background
+    }
   }
 
   Future<void> _determinePosition() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
 
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
-
-    LocationSettings locationSettings = const LocationSettings(
-      accuracy: LocationAccuracy.high,
-    );
-
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: locationSettings,
-    );
-
-    setState(() {
-      _currentLocation = LatLng(position.latitude, position.longitude);
-
-      if (_currentLocation != null) {
-        _mapController.move(_currentLocation!, 14);
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
       }
-    });
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      LatLng userLocation = LatLng(position.latitude, position.longitude);
+      setState(() {
+        _currentLocation = userLocation;
+      });
+
+      // Instantly move map — no waiting for hospitals
+      _mapController.move(userLocation, 13);
+    } catch (e) {
+      debugPrint("Error determining position: $e");
+    }
+  }
+
+  Future<void> _fetchNearbyHospitals(LatLng location,
+      {double radius = 50000}) async {
+    if (_isFetching) return;
+    setState(() => _isFetching = true);
+
+    try {
+      final String query = '''
+      [out:json][timeout:25];
+      (
+        node["amenity"="hospital"](around:$radius,${location.latitude},${location.longitude});
+        way["amenity"="hospital"](around:$radius,${location.latitude},${location.longitude});
+        relation["amenity"="hospital"](around:$radius,${location.latitude},${location.longitude});
+      );
+      out center;
+      ''';
+
+      final uri = Uri.parse(
+          'https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(query)}');
+
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List elements = data['elements'];
+
+        if (elements.isEmpty) {
+          setState(() {
+            _hospitals.clear();
+            _nearestHospital = null;
+            _isFetching = false;
+          });
+          return;
+        }
+
+        final Distance distance = Distance();
+        final hospitals = elements.map<Map<String, dynamic>>((element) {
+          double lat = element['lat'] ?? element['center']?['lat'] ?? 0.0;
+          double lon = element['lon'] ?? element['center']?['lon'] ?? 0.0;
+          return {
+            'name': element['tags']?['name'] ?? 'Unnamed Hospital',
+            'lat': lat,
+            'lng': lon,
+            'address': element['tags']?['addr:street'] ?? 'No address',
+            'website': element['tags']?['website'] ?? '',
+            'hours': element['tags']?['opening_hours'] ?? 'Open 24 hours',
+            'distance': distance(location, LatLng(lat, lon)),
+          };
+        }).toList();
+
+        // Sort by distance & limit to 10 nearest hospitals
+        hospitals.sort((a, b) => a['distance'].compareTo(b['distance']));
+
+        setState(() {
+          _hospitals
+            ..clear()
+            ..addAll(hospitals.take(10));
+          _nearestHospital = _hospitals.isNotEmpty ? _hospitals.first : null;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error fetching hospitals: $e");
+    } finally {
+      setState(() => _isFetching = false);
+    }
+  }
+
+  List<Marker> _buildMarkers() {
+    return _hospitals.map((hospital) {
+      final bool isNearest = _nearestHospital != null &&
+          _nearestHospital!['name'] == hospital['name'];
+
+      return Marker(
+        point: LatLng(hospital['lat'], hospital['lng']),
+        width: 60,
+        height: 60,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              _nearestHospital = hospital;
+            });
+            Get.to(() => SubmitCrowdLevelScreen(
+                  name: hospital['name'],
+                  website: hospital['website'],
+                  address: hospital['address'],
+                  hours: hospital['hours'],
+                ));
+          },
+          child: Icon(
+            Icons.local_hospital,
+            color: isNearest ? Colors.greenAccent : AppTheme.errorColor,
+            size: 35,
+          ),
+        ),
+      );
+    }).toList();
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
+    setState(() => _selectedIndex = index);
     if (index == 0) {
       Get.toNamed('/map');
     } else if (index == 2) {
@@ -70,67 +177,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  List<Marker> _buildMarkers() {
-    final hospitals = [
-      {
-        'name': 'Shree Giriraj Hospital',
-        'lat': 22.2987,
-        'lng': 70.7951,
-        'website': 'shreegirirajhospital.com',
-        'address': '27, Navjyot Park Society, Rajkot',
-        'hours': 'Open 24 hours',
-      },
-      {
-        'name': 'City Hospital',
-        'lat': 22.3091,
-        'lng': 70.8156,
-        'website': 'cityhospital.com',
-        'address': '10, MG Road, Rajkot',
-        'hours': 'Open 24 hours',
-      },
-      {
-        'name': 'Rajkot General Hospital',
-        'lat': 22.3125,
-        'lng': 70.7890,
-        'website': 'rajkotgeneral.com',
-        'address': '5, Ring Road, Rajkot',
-        'hours': 'Open 24 hours',
-      },
-    ];
-
-    return hospitals.map((hospital) {
-      final double lat = hospital['lat'] as double;
-      final double lng = hospital['lng'] as double;
-      final String name = hospital['name'] as String;
-      final String website = hospital['website'] as String;
-      final String address = hospital['address'] as String;
-      final String hours = hospital['hours'] as String;
-
-      return Marker(
-        point: LatLng(lat, lng),
-        width: 60,
-        height: 60,
-        child: GestureDetector(
-          onTap: () {
-            Get.to(() => SubmitCrowdLevelScreen(
-                  name: name,
-                  website: website,
-                  address: address,
-                  hours: hours,
-                ));
-          },
-          child: Icon(
-            Icons.local_hospital,
-            color: AppTheme.errorColor,
-            size: 35,
-          ),
-        ),
-      );
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final hasHospitals = _hospitals.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("WaitMed"),
@@ -150,41 +200,63 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Nearby Hospital Box
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.errorColor.withAlpha(230),
-                borderRadius: BorderRadius.circular(12),
+          // Nearest Hospital Card
+          if (_nearestHospital != null)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.errorColor.withAlpha(230),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _nearestHospital!['name'],
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _nearestHospital!['address'],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _nearestHospital!['hours'],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Shree Giriraj Hospital",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    "27, Navjyot Park Society, Navjyot Park Main Rd,\n150 Feet Ring Rd - 360005",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
+            )
+          else if (_isFetching)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            )
+          else
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                "No hospitals found nearby.",
+                style: TextStyle(color: Colors.grey),
               ),
             ),
-          ),
 
-          // Map Container
+          // Map
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -196,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mapController: _mapController,
                         options: MapOptions(
                           initialCenter: _currentLocation!,
-                          initialZoom: 14,
+                          initialZoom: 13,
                           minZoom: 3,
                           maxZoom: 18,
                         ),
@@ -210,14 +282,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           CurrentLocationLayer(
                             style: const LocationMarkerStyle(),
                           ),
-                          MarkerLayer(markers: _buildMarkers()),
+                          if (hasHospitals) MarkerLayer(markers: _buildMarkers()),
                         ],
                       ),
               ),
             ),
           ),
 
-          // All Hospitals Section
+          // All Hospitals Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Align(
