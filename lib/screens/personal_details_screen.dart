@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import '../Controller/auth_controller.dart';
+import 'edit_profile_screen.dart';
 
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
@@ -21,6 +23,14 @@ class PersonalDetailsScreen extends StatefulWidget {
 
 class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   int _selectedIndex = 2; // Account tab is selected
+  final AuthController _authController = Get.find<AuthController>();
+
+  bool _isLoading = true;
+  String _firstName = '';
+  String _lastName = '';
+  String _email = '';
+  String _password = '';
+  late final StreamSubscription _userSub;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -37,6 +47,81 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
     } else if (index == 2) {
       Navigator.of(context).pop(); // Go back to Account user screen
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    // listen to controller updates so UI refreshes when login sets the user
+    _userSub = _authController.rxUser.listen((u) {
+      if (u != null) {
+        _applyUserToState(u.name, u.email, u.password);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _userSub.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      // Try to get from AuthController first
+      final user = _authController.currentUser;
+
+      if (user != null) {
+        _applyUserToState(user.name, user.email, user.password);
+      } else {
+        // Fallback: try Firestore using FirebaseAuth current user
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        if (firebaseUser == null) {
+          // Not logged in
+          setState(() {
+            _firstName = '';
+            _lastName = '';
+            _email = '';
+            _password = '';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        final uid = firebaseUser.uid;
+        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (doc.exists) {
+          final fetchedUser = UserModel.fromFirestore(doc);
+          // Update controller so other screens can use it
+          _authController.setUser(fetchedUser);
+          _applyUserToState(fetchedUser.name, fetchedUser.email, fetchedUser.password);
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      // ignore errors for now; you can log or show snackbar
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _applyUserToState(String name, String email, String password) {
+    final parts = name.trim().split(RegExp(r"\s+"));
+    final first = parts.isNotEmpty ? parts.first : '';
+    final last = parts.length > 1 ? parts.sublist(1).join(' ') : '';
+
+    setState(() {
+      _firstName = first;
+      _lastName = last;
+      _email = email;
+      _password = password;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -74,7 +159,11 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Optional: Show edit form or additional functionality
+                        // Open edit profile screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
@@ -97,7 +186,9 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                   const SizedBox(height: 24),
 
                   // Personal Details Display
-                  Container(
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -116,25 +207,25 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                         _buildDetailRow(
                           Icons.person_outline,
                           "First Name :",
-                          "Soham",
+                          _firstName.isNotEmpty ? _firstName : 'N/A',
                         ),
                         const SizedBox(height: 20),
                         _buildDetailRow(
                           Icons.person_outline,
                           "Last Name :",
-                          "Thummar",
+                          _lastName.isNotEmpty ? _lastName : 'N/A',
                         ),
                         const SizedBox(height: 20),
                         _buildDetailRow(
                           Icons.email_outlined,
                           "Email address :",
-                          "sthummar444@rku.ac.in",
+                          _email.isNotEmpty ? _email : 'N/A',
                         ),
                         const SizedBox(height: 20),
                         _buildDetailRow(
                           Icons.lock_outline,
                           "Password :",
-                          "Luminous2025",
+                          _password.isNotEmpty ? '●●●●●●' : 'Not set',
                         ),
 
                         const SizedBox(height: 24),

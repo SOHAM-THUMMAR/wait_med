@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/app_theme.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
+import '../Controller/auth_controller.dart';
 
 
 class LoginScreen extends StatelessWidget {
@@ -14,6 +15,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final emailCtrl = TextEditingController();
     final passCtrl = TextEditingController();
+    final AuthController authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppTheme.secondaryColor,
@@ -107,6 +109,17 @@ class LoginScreen extends StatelessWidget {
                         "Login successful",
                         snackPosition: SnackPosition.BOTTOM,
                       );
+                      // Create UserModel (from AuthController) and set in AuthController
+                      final userDoc = querySnapshot.docs.first;
+                      final userModel = UserModel(
+                        uid: userDoc.id,
+                        name: userData['name'] ?? '',
+                        email: userData['email'] ?? '',
+                        password: userData['password'] ?? '',
+                        createdAt: userDoc.data().containsKey('createdAt') ? userDoc['createdAt'] : null,
+                      );
+                      authController.setUser(userModel);
+
                       Get.offAllNamed('/home');
                     } else {
                       Get.snackbar(

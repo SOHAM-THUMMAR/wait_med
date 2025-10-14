@@ -50,6 +50,9 @@ class AuthController extends GetxController {
   UserModel? get currentUser => _currentUser.value;
   String? get currentUserId => _currentUser.value?.uid;
 
+  // Expose the reactive user so other widgets can listen to changes
+  Rx<UserModel?> get rxUser => _currentUser;
+
   void setUser(UserModel user) {
     _currentUser.value = user;
   }

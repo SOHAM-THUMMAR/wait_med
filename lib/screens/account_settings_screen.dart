@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // 1. Add this import
 import 'personal_details_screen.dart';
 import '../core/app_theme.dart';
+import '../Controller/auth_controller.dart';
+import 'dart:async';
 import '../widgets/bottom_navigation_bar.dart';
 
 
@@ -14,6 +16,11 @@ class AccountSettingsScreen extends StatefulWidget {
 
 class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   int _selectedIndex = 2; // Account is selected
+  final AuthController _authController = Get.find<AuthController>();
+  late final StreamSubscription _userSub;
+  String _name = 'N/A';
+  String _email = 'N/A';
+  bool _isLoading = true;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -27,6 +34,38 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       Navigator.of(context).pop(); // Go back to home
     }
     // index 2 is current screen (account), so do nothing
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // initialize from controller if available
+    final u = _authController.currentUser;
+    if (u != null) {
+      _applyUser(u.name, u.email);
+    } else {
+      _isLoading = false; // no immediate loading of firestore here; personal screen handles fallback
+    }
+
+    _userSub = _authController.rxUser.listen((u) {
+      if (u != null) {
+        _applyUser(u.name, u.email);
+      }
+    });
+  }
+
+  void _applyUser(String name, String email) {
+    setState(() {
+      _name = name.isNotEmpty ? name : 'N/A';
+      _email = email.isNotEmpty ? email : 'N/A';
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _userSub.cancel();
+    super.dispose();
   }
 
   @override
@@ -84,22 +123,32 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Thummar Soham",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.textColor,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              "sthummar444@rku.ac.in",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF666666),
-                              ),
-                            ),
+                            _isLoading
+                                ? const SizedBox(
+                                    height: 36,
+                                    child: Center(child: CircularProgressIndicator()),
+                                  )
+                                : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _name,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppTheme.textColor,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _email,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Color(0xFF666666),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                           ],
                         ),
                       ),
