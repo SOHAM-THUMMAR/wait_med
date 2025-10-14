@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import '../widgets/crowd_level_form.dart';
@@ -29,6 +30,7 @@ class SubmitCrowdLevelScreen extends StatefulWidget {
 class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
   CrowdSubmissionState _currentState = CrowdSubmissionState.prompt;
   int? _submittedCrowdCount;
+  int _selectedIndex = 1; // default to middle (home)
 
   void _submitCrowdLevel(int crowdNumber) {
     setState(() {
@@ -41,6 +43,21 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
     setState(() {
       _currentState = CrowdSubmissionState.input;
     });
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Keep navigation consistent with other screens
+    if (index == 0) {
+      Get.toNamed('/map');
+    } else if (index == 1) {
+      Get.toNamed('/home');
+    } else if (index == 2) {
+      Get.toNamed('/account');
+    }
   }
 
   @override
@@ -74,10 +91,8 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
         ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 0) Navigator.pop(context);
-        },
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
