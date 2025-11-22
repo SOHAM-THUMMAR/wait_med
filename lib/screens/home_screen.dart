@@ -6,6 +6,7 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'account_settings_screen.dart';
 import '../core/app_theme.dart';
@@ -35,9 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initLocationAndFetch() async {
-    await _determinePosition(); // Get location first
+    await _determinePosition();
     if (_currentLocation != null) {
-      _fetchNearbyHospitals(_currentLocation!); // Fetch hospitals in background
+      _fetchNearbyHospitals(_currentLocation!);
     }
   }
 
@@ -57,19 +58,49 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       LatLng userLocation = LatLng(position.latitude, position.longitude);
-      setState(() {
-        _currentLocation = userLocation;
-      });
+      setState(() => _currentLocation = userLocation);
 
-      // Instantly move map — no waiting for hospitals
       _mapController.move(userLocation, 13);
     } catch (e) {
       debugPrint("Error determining position: $e");
     }
   }
 
-  Future<void> _fetchNearbyHospitals(LatLng location,
-      {double radius = 50000}) async {
+  /// Reverse Geocoding when OSM has no address
+  Future<String> _reverseGeocode(double lat, double lon) async {
+    final url = Uri.parse(
+      "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=$lat&lon=$lon",
+    );
+
+    try {
+      final response = await http.get(url, headers: {
+        "User-Agent": "WaitMed-App"
+      });
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return json["display_name"] ?? "Address not available";
+      }
+    } catch (e) {
+      debugPrint("Reverse geocode error: $e");
+    }
+
+    return "Address not available";
+  }
+
+  /// Fetch crowd-level Firebase data
+  Future<Map<String, dynamic>?> _getCrowdData(double lat, double lng) async {
+    final id = "${lat}_${lng}";
+    final doc = await FirebaseFirestore.instance
+        .collection("crowdLevel")
+        .doc(id)
+        .get();
+
+    if (!doc.exists) return null;
+    return doc.data();
+  }
+
+  Future<void> _fetchNearbyHospitals(LatLng location, {double radius = 50000}) async {
     if (_isFetching) return;
     setState(() => _isFetching = true);
 
@@ -85,13 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ''';
 
       final uri = Uri.parse(
-          'https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(query)}');
+        'https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(query)}',
+      );
 
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List elements = data['elements'];
+        final json = jsonDecode(response.body);
+        final List elements = json['elements'];
 
         if (elements.isEmpty) {
           setState(() {
@@ -103,28 +135,55 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         final Distance distance = Distance();
-        final hospitals = elements.map<Map<String, dynamic>>((element) {
+        final List<Map<String, dynamic>> hospitals = [];
+
+        for (var element in elements) {
+          final tags = element["tags"] ?? {};
+
           double lat = element['lat'] ?? element['center']?['lat'] ?? 0.0;
           double lon = element['lon'] ?? element['center']?['lon'] ?? 0.0;
-          return {
-            'name': element['tags']?['name'] ?? 'Unnamed Hospital',
+
+          /// Build best possible address
+          String address = [
+            tags["addr:housenumber"],
+            tags["addr:street"],
+            tags["addr:city"],
+            tags["addr:state"],
+            tags["addr:postcode"],
+          ]
+              .where((e) => e != null && e.toString().trim().isNotEmpty)
+              .join(", ");
+
+          if (address.isEmpty) {
+            address = await _reverseGeocode(lat, lon);
+          }
+
+          /// Get crowd data from Firestore
+          final crowd = await _getCrowdData(lat, lon);
+
+          hospitals.add({
+            'name': tags['name'] ?? 'Unnamed Hospital',
             'lat': lat,
             'lng': lon,
-            'address': element['tags']?['addr:street'] ?? 'No address',
-            'website': element['tags']?['website'] ?? '',
-            'hours': element['tags']?['opening_hours'] ?? 'Open 24 hours',
+            'address': address,
+            'website': tags['website'] ?? '',
+            'hours': tags['opening_hours'] ?? 'Open 24 hours',
             'distance': distance(location, LatLng(lat, lon)),
-          };
-        }).toList();
 
-        // Sort by distance & limit to 10 nearest hospitals
+            // NEW Firebase crowd fields
+            'crowdAvg': crowd?['crowdLevelAverage'],
+            'crowdLast': crowd?['crowdLevelLast'],
+            'crowdUpdated': crowd?['lastUpdated'],
+          });
+        }
+
         hospitals.sort((a, b) => a['distance'].compareTo(b['distance']));
 
         setState(() {
           _hospitals
             ..clear()
             ..addAll(hospitals.take(10));
-          _nearestHospital = _hospitals.isNotEmpty ? _hospitals.first : null;
+          _nearestHospital = _hospitals.first;
         });
       }
     } catch (e) {
@@ -136,28 +195,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Marker> _buildMarkers() {
     return _hospitals.map((hospital) {
-      final bool isNearest = _nearestHospital != null &&
-          _nearestHospital!['name'] == hospital['name'];
-
       return Marker(
         point: LatLng(hospital['lat'], hospital['lng']),
         width: 60,
         height: 60,
         child: GestureDetector(
           onTap: () {
-            setState(() {
-              _nearestHospital = hospital;
-            });
+            setState(() => _nearestHospital = hospital);
             Get.to(() => SubmitCrowdLevelScreen(
-                  name: hospital['name'],
-                  website: hospital['website'],
-                  address: hospital['address'],
-                  hours: hospital['hours'],
-                ));
+              name: hospital['name'],
+              website: hospital['website'],
+              address: hospital['address'],
+              hours: hospital['hours'],
+              latitude: hospital['lat'],
+              longitude: hospital['lng'],
+            ));
           },
-          child: Icon(
+          child: const Icon(
             Icons.local_hospital,
-            color: isNearest ? Colors.greenAccent : AppTheme.errorColor,
+            color: Colors.red,
             size: 35,
           ),
         ),
@@ -167,13 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
-    if (index == 0) {
-      Get.toNamed('/map');
-    } else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AccountSettingsScreen()),
-      );
+
+    if (index == 0) Get.toNamed('/map');
+    else if (index == 2) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AccountSettingsScreen()));
     }
   }
 
@@ -190,20 +243,16 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AccountSettingsScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AccountSettingsScreen()));
             },
           )
         ],
       ),
       body: Column(
         children: [
-          // Nearest Hospital Card
           if (_nearestHospital != null)
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -217,27 +266,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       _nearestHospital!['name'],
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                        fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       _nearestHospital!['address'],
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
+                      style: const TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       _nearestHospital!['hours'],
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
+                      style: const TextStyle(color: Colors.white70),
                     ),
+                    const SizedBox(height: 10),
+
+                    /// NEW — Show Crowd Data
+                    if (_nearestHospital!['crowdAvg'] != null)
+                      Text(
+                        "Average Crowd: ${_nearestHospital!['crowdAvg']}",
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+
+                    if (_nearestHospital!['crowdLast'] != null)
+                      Text(
+                        "Last Submitted: ${_nearestHospital!['crowdLast']}",
+                        style: const TextStyle(color: Colors.white),
+                      ),
                   ],
                 ),
               ),
@@ -250,13 +305,9 @@ class _HomeScreenState extends State<HomeScreen> {
           else
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text(
-                "No hospitals found nearby.",
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: Text("No hospitals found nearby.", style: TextStyle(color: Colors.grey)),
             ),
 
-          // Map
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -274,13 +325,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                             subdomains: const ['a', 'b', 'c'],
                             userAgentPackageName: 'com.waitmed.app',
                           ),
-                          CurrentLocationLayer(
-                            style: const LocationMarkerStyle(),
+                          const CurrentLocationLayer(
+                            style: LocationMarkerStyle(),
                           ),
                           if (hasHospitals) MarkerLayer(markers: _buildMarkers()),
                         ],
@@ -289,7 +339,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // All Hospitals Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Align(
@@ -297,10 +346,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 "All Hospitals",
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textColor,
-                ),
+                  fontSize: 18, fontWeight: FontWeight.bold,
+                  color: AppTheme.textColor),
               ),
             ),
           ),

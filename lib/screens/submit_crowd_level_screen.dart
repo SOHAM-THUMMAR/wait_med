@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import '../widgets/crowd_level_form.dart';
 
-
-
-// Enum for submission states
 enum CrowdSubmissionState { prompt, input, submitted }
 
 class SubmitCrowdLevelScreen extends StatefulWidget {
@@ -15,12 +14,17 @@ class SubmitCrowdLevelScreen extends StatefulWidget {
   final String address;
   final String hours;
 
+  final double latitude;
+  final double longitude;
+
   const SubmitCrowdLevelScreen({
     super.key,
     required this.name,
     required this.website,
     required this.address,
     required this.hours,
+    required this.latitude,
+    required this.longitude,
   });
 
   @override
@@ -30,9 +34,50 @@ class SubmitCrowdLevelScreen extends StatefulWidget {
 class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
   CrowdSubmissionState _currentState = CrowdSubmissionState.prompt;
   int? _submittedCrowdCount;
-  int _selectedIndex = 1; // default to middle (home)
+  int _selectedIndex = 1;
 
-  void _submitCrowdLevel(int crowdNumber) {
+  // SAVE crowd data + calculate average
+  Future<void> _saveCrowdToFirestore(int crowdNumber) async {
+    final String documentId = "${widget.latitude}_${widget.longitude}";
+    final ref = FirebaseFirestore.instance.collection("crowdLevel").doc(documentId);
+
+    final doc = await ref.get();
+
+    if (doc.exists) {
+      // READ previous values
+      final data = doc.data()!;
+      final int oldCount = data["submissionCount"] ?? 0;
+      final int oldAverage = data["crowdLevelAverage"] ?? 0;
+
+      // NEW average
+      final int newCount = oldCount + 1;
+      final int newAverage = ((oldAverage * oldCount) + crowdNumber) ~/ newCount;
+
+      await ref.update({
+        "crowdLevelLast": crowdNumber,
+        "crowdLevelAverage": newAverage,
+        "submissionCount": newCount,
+        "lastUpdated": FieldValue.serverTimestamp(),
+      });
+    } else {
+      // FIRST SUBMISSION
+      await ref.set({
+        "id": documentId,
+        "hospitalName": widget.name,
+        "location": GeoPoint(widget.latitude, widget.longitude),
+
+        "crowdLevelLast": crowdNumber,
+        "crowdLevelAverage": crowdNumber,
+        "submissionCount": 1,
+
+        "lastUpdated": FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  void _submitCrowdLevel(int crowdNumber) async {
+    await _saveCrowdToFirestore(crowdNumber);
+
     setState(() {
       _submittedCrowdCount = crowdNumber;
       _currentState = CrowdSubmissionState.submitted;
@@ -40,24 +85,15 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
   }
 
   void _showInputForm() {
-    setState(() {
-      _currentState = CrowdSubmissionState.input;
-    });
+    setState(() => _currentState = CrowdSubmissionState.input);
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
 
-    // Keep navigation consistent with other screens
-    if (index == 0) {
-      Get.toNamed('/map');
-    } else if (index == 1) {
-      Get.toNamed('/home');
-    } else if (index == 2) {
-      Get.toNamed('/account');
-    }
+    if (index == 0) Get.toNamed('/map');
+    if (index == 1) Get.toNamed('/home');
+    if (index == 2) Get.toNamed('/account');
   }
 
   @override
@@ -65,29 +101,25 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppTheme.primaryColor,
-        elevation: 0,
+        title: Text(widget.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(widget.name),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHospitalInfoCard(),
-              const SizedBox(height: 20),
-              if (_currentState == CrowdSubmissionState.prompt)
-                _buildPromptCard(),
-              if (_currentState == CrowdSubmissionState.input)
-                CrowdLevelForm(onSubmitted: _submitCrowdLevel),
-              if (_currentState == CrowdSubmissionState.submitted)
-                _buildSubmittedView(),
-            ],
-          ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildHospitalInfoCard(),
+            const SizedBox(height: 20),
+            if (_currentState == CrowdSubmissionState.prompt)
+              _buildPromptCard(),
+            if (_currentState == CrowdSubmissionState.input)
+              CrowdLevelForm(onSubmitted: _submitCrowdLevel),
+            if (_currentState == CrowdSubmissionState.submitted)
+              _buildSubmittedView(),
+          ],
         ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
@@ -99,82 +131,20 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
 
   Widget _buildHospitalInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.primaryColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.location_city, color: AppTheme.primaryColor),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Shree Giriraj Hospital',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'shreegirirajhospital.com',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Divider(color: Colors.white54),
-          const SizedBox(height: 10),
-          Text(
-            widget.address,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: const [
-              Icon(Icons.access_time, color: Colors.white),
-              SizedBox(width: 5),
-              Text('Open 24 hours', style: TextStyle(color: Colors.white)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(Icons.star, color: Colors.yellow),
-              const Icon(Icons.star, color: Colors.yellow),
-              const Icon(Icons.star, color: Colors.yellow),
-              const Icon(Icons.star_half, color: Colors.yellow),
-              const Icon(Icons.star_border, color: Colors.yellow),
-              const SizedBox(width: 10),
-              Text(
-                'Crowd level: ${_submittedCrowdCount != null && _submittedCrowdCount! > 50 ? 'High' : 'Medium'}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          if (_submittedCrowdCount != null) ...[
-            const SizedBox(height: 5),
-            Text(
-              '$_submittedCrowdCount people',
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-            ),
-          ],
+          Text(widget.name,
+              style: const TextStyle(
+                  color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Text(widget.address,
+              style: const TextStyle(color: Colors.white70, fontSize: 14)),
         ],
       ),
     );
@@ -184,39 +154,21 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
     return InkWell(
       onTap: _showInputForm,
       child: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppTheme.primaryColor.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.accentColor, width: 2),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
-          children: [
-            const Icon(
-              Icons.notifications_active,
-              color: AppTheme.accentColor,
-              size: 30,
-            ),
-            const SizedBox(width: 10),
+          children: const [
+            Icon(Icons.people, color: Colors.white, size: 32),
+            SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'WaitMed | Crowd Status!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'Can you tell us how many visitors are there, to help others in need?',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              child: Text(
+                "Tell us the crowd level to help other patients!",
+                style: TextStyle(color: Colors.white),
               ),
-            ),
-            const Icon(Icons.close, color: Colors.white),
+            )
           ],
         ),
       ),
@@ -233,12 +185,8 @@ class _SubmitCrowdLevelScreenState extends State<SubmitCrowdLevelScreen> {
         ),
         const SizedBox(height: 10),
         const Text(
-          'Submitted Successfully!!',
-          style: TextStyle(
-            color: Colors.green,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+          "Submitted Successfully!",
+          style: TextStyle(color: Colors.green, fontSize: 18),
         ),
       ],
     );
