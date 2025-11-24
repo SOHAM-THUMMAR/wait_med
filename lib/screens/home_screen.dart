@@ -13,6 +13,10 @@ import '../core/app_theme.dart';
 import '../widgets/bottom_navigation_bar.dart';
 import 'submit_crowd_level_screen.dart';
 
+// NEW: geofence helper that uses geofence_service 6.x and NotificationService
+import '../services/geofence_helper.dart';
+import '../services/notification_service.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -29,6 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _nearestHospital;
   bool _isFetching = false;
 
+  /// Keep track whether geofencing has been started to avoid restarting repeatedly
+  bool _geofencingStarted = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initLocationAndFetch() async {
     await _determinePosition();
     if (_currentLocation != null) {
-      _fetchNearbyHospitals(_currentLocation!);
+      await _fetchNearbyHospitals(_currentLocation!);
     }
   }
 
@@ -73,9 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     try {
-      final response = await http.get(url, headers: {
-        "User-Agent": "WaitMed-App"
-      });
+      final response = await http.get(url, headers: {"User-Agent": "WaitMed-App"});
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -91,10 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Fetch crowd-level Firebase data
   Future<Map<String, dynamic>?> _getCrowdData(double lat, double lng) async {
     final id = "${lat}_${lng}";
-    final doc = await FirebaseFirestore.instance
-        .collection("crowdLevel")
-        .doc(id)
-        .get();
+    final doc = await FirebaseFirestore.instance.collection("crowdLevel").doc(id).get();
 
     if (!doc.exists) return null;
     return doc.data();
@@ -115,9 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
       out center;
       ''';
 
-      final uri = Uri.parse(
-        'https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(query)}',
-      );
+      final uri = Uri.parse('https://overpass-api.de/api/interpreter?data=${Uri.encodeComponent(query)}');
 
       final response = await http.get(uri);
 
@@ -143,16 +143,14 @@ class _HomeScreenState extends State<HomeScreen> {
           double lat = element['lat'] ?? element['center']?['lat'] ?? 0.0;
           double lon = element['lon'] ?? element['center']?['lon'] ?? 0.0;
 
-          /// Build best possible address
+          /// Build best address
           String address = [
             tags["addr:housenumber"],
             tags["addr:street"],
             tags["addr:city"],
             tags["addr:state"],
             tags["addr:postcode"],
-          ]
-              .where((e) => e != null && e.toString().trim().isNotEmpty)
-              .join(", ");
+          ].where((e) => e != null && e.toString().trim().isNotEmpty).join(", ");
 
           if (address.isEmpty) {
             address = await _reverseGeocode(lat, lon);
@@ -170,9 +168,11 @@ class _HomeScreenState extends State<HomeScreen> {
             'hours': tags['opening_hours'] ?? 'Open 24 hours',
             'distance': distance(location, LatLng(lat, lon)),
 
-            // NEW Firebase crowd fields
+            // Firestore crowd fields
+            'crowdLevel': crowd?['crowdLevel'],
             'crowdAvg': crowd?['crowdLevelAverage'],
             'crowdLast': crowd?['crowdLevelLast'],
+            'submissions': crowd?['submissionCount'],
             'crowdUpdated': crowd?['lastUpdated'],
           });
         }
@@ -183,8 +183,26 @@ class _HomeScreenState extends State<HomeScreen> {
           _hospitals
             ..clear()
             ..addAll(hospitals.take(10));
-          _nearestHospital = _hospitals.first;
+          _nearestHospital = _hospitals.isNotEmpty ? _hospitals.first : null;
         });
+
+        // --- START GEOFENCING (ENTER only) ---
+        // Start geofencing once with the current hospitals list (5 km radius configured in helper).
+        // Guard against calling repeatedly: start only if not already started.
+        if (!_geofencingStarted && _hospitals.isNotEmpty) {
+          try {
+            // ensure notifications are initialized (safe no-op if already done)
+            await NotificationService.initialize();
+
+            // start geofencing — this uses geofence_service 6.x implementation
+            await GeofenceHelper.startGeofencing(_hospitals);
+
+            _geofencingStarted = true;
+            debugPrint("Geofencing started for ${_hospitals.length} hospitals.");
+          } catch (e) {
+            debugPrint("Error starting geofencing: $e");
+          }
+        }
       }
     } catch (e) {
       debugPrint("Error fetching hospitals: $e");
@@ -203,13 +221,13 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: () {
             setState(() => _nearestHospital = hospital);
             Get.to(() => SubmitCrowdLevelScreen(
-              name: hospital['name'],
-              website: hospital['website'],
-              address: hospital['address'],
-              hours: hospital['hours'],
-              latitude: hospital['lat'],
-              longitude: hospital['lng'],
-            ));
+                  name: hospital['name'],
+                  website: hospital['website'],
+                  address: hospital['address'],
+                  hours: hospital['hours'],
+                  latitude: hospital['lat'],
+                  longitude: hospital['lng'],
+                ));
           },
           child: const Icon(
             Icons.local_hospital,
@@ -266,32 +284,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text(
                       _nearestHospital!['name'],
                       style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                     ),
+
                     const SizedBox(height: 6),
-                    Text(
-                      _nearestHospital!['address'],
+                    Text(_nearestHospital!['address'],
                       style: const TextStyle(color: Colors.white),
                     ),
+
                     const SizedBox(height: 6),
-                    Text(
-                      _nearestHospital!['hours'],
+                    Text(_nearestHospital!['hours'],
                       style: const TextStyle(color: Colors.white70),
                     ),
-                    const SizedBox(height: 10),
 
-                    /// NEW — Show Crowd Data
+                    const SizedBox(height: 12),
+
+                    if (_nearestHospital!['crowdLevel'] != null)
+                      Text(
+                        "Current Crowd: ${_nearestHospital!['crowdLevel']}",
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+
                     if (_nearestHospital!['crowdAvg'] != null)
                       Text(
                         "Average Crowd: ${_nearestHospital!['crowdAvg']}",
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.white),
                       ),
 
                     if (_nearestHospital!['crowdLast'] != null)
                       Text(
                         "Last Submitted: ${_nearestHospital!['crowdLast']}",
                         style: const TextStyle(color: Colors.white),
+                      ),
+
+                    if (_nearestHospital!['submissions'] != null)
+                      Text(
+                        "Total Submissions: ${_nearestHospital!['submissions']}",
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+
+                    if (_nearestHospital!['crowdUpdated'] != null)
+                      Text(
+                        "Updated: ${_nearestHospital!['crowdUpdated'].toDate()}",
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                   ],
                 ),
@@ -346,7 +383,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 "All Hospitals",
                 style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: AppTheme.textColor),
               ),
             ),

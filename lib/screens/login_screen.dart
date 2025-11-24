@@ -1,12 +1,11 @@
-// lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/app_theme.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import '../Controller/auth_controller.dart';
-
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -34,6 +33,7 @@ class LoginScreen extends StatelessWidget {
                     color: Color(0xFF333333)),
               ),
               const SizedBox(height: 30),
+
               SizedBox(
                 height: 220,
                 width: double.infinity,
@@ -42,15 +42,17 @@ class LoginScreen extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
+
               const SizedBox(height: 40),
 
-              CustomTextField(
-                  hint: "Enter your email", controller: emailCtrl),
+              CustomTextField(hint: "Enter your email", controller: emailCtrl),
               const SizedBox(height: 16),
+
               CustomTextField(
-                  hint: "Enter your password",
-                  controller: passCtrl,
-                  obscure: true),
+                hint: "Enter your password",
+                controller: passCtrl,
+                obscure: true,
+              ),
               const SizedBox(height: 16),
 
               Align(
@@ -60,9 +62,10 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     "Forgot password?",
                     style: TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500),
+                      color: AppTheme.primaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -76,64 +79,58 @@ class LoginScreen extends StatelessWidget {
                   final password = passCtrl.text.trim();
 
                   if (email.isEmpty || password.isEmpty) {
-                    Get.snackbar(
-                      "Error",
-                      "Please fill all fields",
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
+                    Get.snackbar("Error", "Please fill all fields",
+                        snackPosition: SnackPosition.BOTTOM);
                     return;
                   }
 
                   try {
-                    // 🔹 Fetch user from Firestore by email
                     final querySnapshot = await FirebaseFirestore.instance
                         .collection("users")
                         .where("email", isEqualTo: email)
                         .get();
 
                     if (querySnapshot.docs.isEmpty) {
-                      Get.snackbar(
-                        "Error",
-                        "No user found with this email",
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
+                      Get.snackbar("Error", "No user found with this email",
+                          snackPosition: SnackPosition.BOTTOM);
                       return;
                     }
 
                     final userData = querySnapshot.docs.first.data();
 
-                    // 🔹 Check password
                     if (userData['password'] == password) {
-                      Get.snackbar(
-                        "Success",
-                        "Login successful",
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
-                      // Create UserModel (from AuthController) and set in AuthController
+                      // 🔥 Save Login State
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool("isLoggedIn", true);
+                      await prefs.setString("uid", querySnapshot.docs.first.id);
+                      await prefs.setString("email", userData["email"]);
+                      await prefs.setString("name", userData["name"]);
+
+                      // Setup User Model
                       final userDoc = querySnapshot.docs.first;
                       final userModel = UserModel(
                         uid: userDoc.id,
                         name: userData['name'] ?? '',
                         email: userData['email'] ?? '',
                         password: userData['password'] ?? '',
-                        createdAt: userDoc.data().containsKey('createdAt') ? userDoc['createdAt'] : null,
+                        createdAt: userDoc.data().containsKey('createdAt')
+                            ? userDoc['createdAt']
+                            : null,
                       );
+
                       authController.setUser(userModel);
+
+                      Get.snackbar("Success", "Login successful",
+                          snackPosition: SnackPosition.BOTTOM);
 
                       Get.offAllNamed('/home');
                     } else {
-                      Get.snackbar(
-                        "Error",
-                        "Incorrect password",
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
+                      Get.snackbar("Error", "Incorrect password",
+                          snackPosition: SnackPosition.BOTTOM);
                     }
                   } catch (e) {
-                    Get.snackbar(
-                      "Error",
-                      "Something went wrong",
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
+                    Get.snackbar("Error", "Something went wrong",
+                        snackPosition: SnackPosition.BOTTOM);
                   }
                 },
               ),
@@ -146,10 +143,12 @@ class LoginScreen extends StatelessWidget {
                       style: TextStyle(color: Color(0xFF666666))),
                   GestureDetector(
                     onTap: () => Get.toNamed('/register'),
-                    child: Text("Sign Up",
-                        style: TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "Sign Up",
+                      style: TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),

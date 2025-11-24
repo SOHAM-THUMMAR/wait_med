@@ -1,8 +1,6 @@
-// lib/screens/splash_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../core/app_theme.dart';
-
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -18,7 +16,6 @@ class SplashScreen extends StatelessWidget {
             children: [
               const Spacer(),
 
-              // Figma PNG Illustration - High Quality
               SizedBox(
                 height: 300,
                 width: double.infinity,
@@ -30,7 +27,6 @@ class SplashScreen extends StatelessWidget {
 
               const SizedBox(height: 32),
 
-              // Title text
               const Text(
                 "Search for non-crowded hospitals/clinics from anywhere",
                 textAlign: TextAlign.center,
@@ -44,7 +40,6 @@ class SplashScreen extends StatelessWidget {
 
               const Spacer(),
 
-              // Get Started Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

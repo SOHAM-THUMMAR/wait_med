@@ -27,6 +27,15 @@ dependencies:
   # State Management
   get: ^4.7.2
 
+  # Location + Notifications
+  flutter_local_notifications: ^17.0.0
+  geofence_service: 6.0.0+1
+  permission_handler: ^11.0.1
+
+  # login
+  shared_preferences: ^2.2.0
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
