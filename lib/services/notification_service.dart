@@ -14,7 +14,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {
-    // 🔔 Request Notification Permission (Android 13+)
+    // Request Notification Permission (Android 13+)
     if (Platform.isAndroid) {
       final status = await Permission.notification.status;
       if (!status.isGranted) {

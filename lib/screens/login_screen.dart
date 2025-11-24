@@ -99,7 +99,7 @@ class LoginScreen extends StatelessWidget {
                     final userData = querySnapshot.docs.first.data();
 
                     if (userData['password'] == password) {
-                      // 🔥 Save Login State
+                      // Save Login State
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setBool("isLoggedIn", true);
                       await prefs.setString("uid", querySnapshot.docs.first.id);

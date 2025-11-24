@@ -30,25 +30,25 @@ import 'core/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔥 Initialize Firebase
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 🔔 Initialize Notification Service
+  // Initialize Notification Service
   await NotificationService.initialize();
 
-  // 👤 Register Auth Controller
+  // Register Auth Controller
   Get.put(AuthController());
 
-  // 🔥 Auto-login check
+  // Auto-login check
   final prefs = await SharedPreferences.getInstance();
   final bool isLoggedIn = prefs.getBool("isLoggedIn") ?? false;
 
-  // 🚀 Start the app
+  // Start the app
   runApp(WaitMedApp(isLoggedIn: isLoggedIn));
 
-  // 🏥 Start Hospital Geofencing Service AFTER app starts
+  // Start Hospital Geofencing Service AFTER app starts
   final geofence = HospitalGeofenceService(
     radiusMeters: 200,           // change radius if needed
     queryIntervalSeconds: 20,    // how often to check
@@ -83,7 +83,7 @@ class WaitMedApp extends StatelessWidget {
         GetPage(name: '/personal', page: () => const EditProfileScreen()),
         GetPage(name: '/map', page: () => const OpenStreetMapScreen()),
 
-        // 🔥 Add submit crowd level screen route (optional)
+        // Add submit crowd level screen route (optional)
         GetPage(
             name: '/submit',
             page: () => SubmitCrowdLevelScreen(
