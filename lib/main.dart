@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firebase_options.dart';
 
@@ -30,33 +31,49 @@ import 'core/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // ------------------------ Firebase Init ------------------------
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize Notification Service
+  // ------------------------ Notification Init ------------------------
   await NotificationService.initialize();
 
-  // Register Auth Controller
-  Get.put(AuthController());
+  // ------------------------ GetX Controller Init ------------------------
+  final auth = Get.put(AuthController());
 
-  // Auto-login check
+  // ------------------------ Shared Prefs Login ------------------------
   final prefs = await SharedPreferences.getInstance();
   final bool isLoggedIn = prefs.getBool("isLoggedIn") ?? false;
+  final String? uid = prefs.getString("uid");
 
-  // Start the app
+  // If UID exists, restore user data from Firestore
+  if (uid != null) {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .get();
+
+      if (doc.exists) {
+        auth.setUser(UserModel.fromFirestore(doc));
+      }
+    } catch (e) {
+      print("Error restoring user: $e");
+    }
+  }
+
+  // ------------------------ Run App ------------------------
   runApp(WaitMedApp(isLoggedIn: isLoggedIn));
 
-  // Start Hospital Geofencing Service AFTER app starts
+  // ------------------------ Start Geofencing After App Builds ------------------------
   final geofence = HospitalGeofenceService(
-    radiusMeters: 200,           // change radius if needed
-    queryIntervalSeconds: 20,    // how often to check
+    radiusMeters: 200,
+    queryIntervalSeconds: 20,
   );
 
   geofence.startMonitoring();
 }
 
+// ------------------------ APP WIDGET ------------------------
 class WaitMedApp extends StatelessWidget {
   final bool isLoggedIn;
 
@@ -69,10 +86,10 @@ class WaitMedApp extends StatelessWidget {
       title: "WaitMed",
       theme: AppTheme.lightTheme,
 
-      // If user already logged in → go directly Home
-      // else → show SplashScreen
+      // Auto navigation
       home: isLoggedIn ? const HomeScreen() : const SplashScreen(),
 
+      // App Routes
       getPages: [
         GetPage(name: '/splash', page: () => const SplashScreen()),
         GetPage(name: '/login', page: () => const LoginScreen()),
@@ -83,17 +100,18 @@ class WaitMedApp extends StatelessWidget {
         GetPage(name: '/personal', page: () => const EditProfileScreen()),
         GetPage(name: '/map', page: () => const OpenStreetMapScreen()),
 
-        // Add submit crowd level screen route (optional)
+        // Crowd Level Submit Screen
         GetPage(
-            name: '/submit',
-            page: () => SubmitCrowdLevelScreen(
-                  name: Get.arguments['name'],
-                  website: Get.arguments['website'],
-                  address: Get.arguments['address'],
-                  hours: Get.arguments['hours'],
-                  latitude: Get.arguments['latitude'],
-                  longitude: Get.arguments['longitude'],
-                )),
+          name: '/submit',
+          page: () => SubmitCrowdLevelScreen(
+            name: Get.arguments['name'],
+            website: Get.arguments['website'],
+            address: Get.arguments['address'],
+            hours: Get.arguments['hours'],
+            latitude: Get.arguments['latitude'],
+            longitude: Get.arguments['longitude'],
+          ),
+        ),
       ],
     );
   }

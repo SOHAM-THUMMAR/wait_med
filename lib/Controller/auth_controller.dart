@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserModel {
   final String uid;
@@ -48,22 +49,56 @@ class AuthController extends GetxController {
   final Rx<UserModel?> _currentUser = Rx<UserModel?>(null);
 
   UserModel? get currentUser => _currentUser.value;
+  Rx<UserModel?> get rxUser => _currentUser;
   String? get currentUserId => _currentUser.value?.uid;
 
-  // Expose the reactive user so other widgets can listen to changes
-  Rx<UserModel?> get rxUser => _currentUser;
-
-  void setUser(UserModel user) {
+  Future<void> setUser(UserModel user) async {
     _currentUser.value = user;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isLoggedIn", true);
+    await prefs.setString("uid", user.uid);
   }
 
-  void updateUserInfo(String name) {
-    if (_currentUser.value != null) {
-      _currentUser.value = _currentUser.value!.copyWith(name: name);
+  Future<void> loadUserFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final uid = prefs.getString("uid");
+
+    if (uid == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .get();
+
+      if (doc.exists) {
+        final user = UserModel.fromFirestore(doc);
+        _currentUser.value = user; // updates UI via rxUser
+      }
+    } catch (e) {
+      print("Error loading user: $e");
     }
   }
 
-  void clearUser() {
+  Future<void> updateUserName(String newName) async {
+    if (_currentUser.value == null) return;
+
+    final uid = _currentUser.value!.uid;
+
+    await FirebaseFirestore.instance.collection("users").doc(uid).update({
+      "name": newName,
+    });
+
+    _currentUser.value = _currentUser.value!.copyWith(name: newName);
+  }
+
+  Future<void> logout() async {
     _currentUser.value = null;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    Get.offAllNamed('/login');
   }
 }

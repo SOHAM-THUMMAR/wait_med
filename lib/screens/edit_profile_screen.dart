@@ -36,7 +36,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveChanges() async {
     final uid = authController.currentUserId;
     if (uid == null) {
-      Get.snackbar("Error", "User not logged in.", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "User not logged in.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -44,28 +48,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final newPassword = _passwordCtrl.text.trim();
 
     if (newName.isEmpty) {
-      Get.snackbar("Error", "Name cannot be empty.", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Name cannot be empty.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
     if (newPassword.isNotEmpty && newPassword.length < 6) {
-      Get.snackbar("Error", "Password must be at least 6 characters long.", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Password must be at least 6 characters long.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      final userDocRef = FirebaseFirestore.instance.collection('users').doc(uid);
+      final userDocRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid);
 
       final updateData = {'name': newName};
-      if (newPassword.isNotEmpty) updateData['password'] = newPassword;
 
-      //  Update Firestore
+      if (newPassword.isNotEmpty) {
+        updateData['password'] = newPassword;
+      }
+
+      // Update Firestore
       await userDocRef.update(updateData);
 
-      // Update local model (only name)
-      authController.updateUserInfo(newName);
+      // Update local user (name only)
+      await authController.updateUserName(newName);
 
       Get.snackbar(
         "Success",
@@ -116,13 +133,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 keyboardType: TextInputType.name,
               ),
               const SizedBox(height: 16),
+
               CustomTextField(
                 hint: "New Password (Leave blank to keep current)",
                 controller: _passwordCtrl,
                 obscure: true,
                 keyboardType: TextInputType.visiblePassword,
               ),
+
               const SizedBox(height: 32),
+
               CustomButton(
                 text: _isLoading ? "Saving..." : "Save Changes",
                 onPressed: _isLoading ? null : _saveChanges,
@@ -162,11 +182,17 @@ class CustomButton extends StatelessWidget {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
               )
             : Text(
                 text,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
       ),
     );
