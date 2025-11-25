@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // 1. Add this import
+import 'package:get/get.dart';
+import 'dart:async';
+
 import 'personal_details_screen.dart';
 import '../core/app_theme.dart';
 import '../Controller/auth_controller.dart';
-import 'dart:async';
 import '../widgets/bottom_navigation_bar.dart';
-
+import '../services/search_history_service.dart';
 
 class AccountSettingsScreen extends StatefulWidget {
   const AccountSettingsScreen({super.key});
@@ -15,36 +16,33 @@ class AccountSettingsScreen extends StatefulWidget {
 }
 
 class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
-  int _selectedIndex = 2; // Account is selected
+  int _selectedIndex = 2;
   final AuthController _authController = Get.find<AuthController>();
   late final StreamSubscription _userSub;
+
   String _name = 'N/A';
   String _email = 'N/A';
   bool _isLoading = true;
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
 
     if (index == 0) {
-      // 2. Add this: Location icon pressed -> Go to Map Screen
       Get.toNamed('/map');
     } else if (index == 1) {
-      Navigator.of(context).pop(); // Go back to home
+      Navigator.of(context).pop();
     }
-    // index 2 is current screen (account), so do nothing
   }
 
   @override
   void initState() {
     super.initState();
-    // initialize from controller if available
+
     final u = _authController.currentUser;
     if (u != null) {
       _applyUser(u.name, u.email);
     } else {
-      _isLoading = false; // no immediate loading of firestore here; personal screen handles fallback
+      _isLoading = false;
     }
 
     _userSub = _authController.rxUser.listen((u) {
@@ -89,6 +87,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -98,9 +97,9 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                 children: [
                   const SizedBox(height: 20),
 
+                  // USER INFO
                   Row(
                     children: [
-                      // User Avatar
                       Container(
                         width: 50,
                         height: 50,
@@ -118,46 +117,42 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                       ),
                       const SizedBox(width: 16),
 
-                      // User Info
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _isLoading
-                                ? const SizedBox(
-                                    height: 36,
-                                    child: Center(child: CircularProgressIndicator()),
-                                  )
-                                : Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        _name,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: AppTheme.textColor,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        _email,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF666666),
-                                        ),
-                                      ),
-                                    ],
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 36,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _name,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.textColor,
+                                    ),
                                   ),
-                          ],
-                        ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _email,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF666666),
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ],
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Account Settings Button
+                  // ACCOUNT SETTINGS BUTTON
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -189,13 +184,11 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Past/Recent Searches Button
+                  // RECENT SEARCHES BUTTON (optional)
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Optional: Show recent searches dialog
-                      },
+                      onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -216,29 +209,35 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Recent Searches List
-                  Column(
-                    children: [
-                      _buildSearchItem(
-                        Icons.location_on,
-                        "Wockhardt Hospitals , Rajkot",
-                      ),
-                      const SizedBox(height: 12),
-                      _buildSearchItem(
-                        Icons.location_on,
-                        "Sterling Hospitals , Rajkot",
-                      ),
-                      const SizedBox(height: 12),
-                      _buildSearchItem(
-                        Icons.location_on,
-                        "Genesis Multispeciality Hospital , Rajkot",
-                      ),
-                      const SizedBox(height: 12),
-                      _buildSearchItem(
-                        Icons.location_on,
-                        "Premier Hospital & ICU",
-                      ),
-                    ],
+                  // ⭐ RECENT SEARCHES FROM SQLITE
+                  FutureBuilder<List<String>>(
+                    future: SearchHistoryService.getSearchHistory(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final searches = snapshot.data!;
+
+                      if (searches.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Text(
+                            "No recent searches",
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        );
+                      }
+
+                      return Column(
+                        children: searches.map((keyword) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildSearchItem(Icons.location_on, keyword),
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -247,7 +246,6 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         ],
       ),
 
-      // Modular Bottom Navigation
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

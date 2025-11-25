@@ -35,6 +35,10 @@ dependencies:
   # login
   shared_preferences: ^2.2.0
 
+  # history
+  sqflite: ^2.3.0
+  path: ^1.9.0
+
 
 dev_dependencies:
   flutter_test:
