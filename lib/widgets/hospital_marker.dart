@@ -19,11 +19,7 @@ class HospitalMarker {
         height: 60,
         child: GestureDetector(
           onTap: () => _openHospitalDetails(hospital),
-          child: const Icon(
-            Icons.local_hospital,
-            color: Colors.red,
-            size: 35,
-          ),
+          child: const Icon(Icons.local_hospital, color: Colors.red, size: 35),
         ),
       );
     }).toList();
@@ -50,52 +46,76 @@ class HospitalMarker {
     showModalBottomSheet(
       context: Get.context!,
       backgroundColor: Colors.white,
+      isScrollControlled: true, // Allows modal to expand and scroll
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(hospital.name,
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final maxHeight = MediaQuery.of(context).size.height * 0.75;
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hospital.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
 
-              Text("Address: ${hospital.address}"),
-              Text("Hours: ${hospital.hours}"),
-              Text("Website: ${hospital.website}"),
-              const SizedBox(height: 10),
-              Text("Latitude: ${hospital.lat}"),
-              Text("Longitude: ${hospital.lng}"),
+                    Text("Address: ${hospital.address}"),
+                    Text("Hours: ${hospital.hours}"),
+                    Text("Website: ${hospital.website}"),
+                    const SizedBox(height: 10),
+                    Text("Latitude: ${hospital.lat}"),
+                    Text("Longitude: ${hospital.lng}"),
 
-              const Divider(height: 30),
-              const Text("Crowd Information:",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Divider(height: 30),
+                    const Text(
+                      "Crowd Information:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
 
-              if (avg != null) Text("Average Crowd: $avg"),
-              if (last != null) Text("Last Submitted: $last"),
-              if (updated != null) Text("Last Updated: $updated"),
+                    if (avg != null) Text("Average Crowd: $avg"),
+                    if (last != null) Text("Last Submitted: $last"),
+                    if (updated != null) Text("Last Updated: $updated"),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              ElevatedButton(
-                onPressed: () {
-                  Get.to(() => SubmitCrowdLevelScreen(
-                        name: hospital.name,
-                        website: hospital.website,
-                        address: hospital.address,
-                        hours: hospital.hours,
-                        latitude: hospital.lat,
-                        longitude: hospital.lng,
-                      ));
-                },
-                child: const Text("Submit New Crowd Level"),
+                    ElevatedButton(
+                      onPressed: () {
+                        Get.to(
+                          () => SubmitCrowdLevelScreen(
+                            name: hospital.name,
+                            website: hospital.website,
+                            address: hospital.address,
+                            hours: hospital.hours,
+                            latitude: hospital.lat,
+                            longitude: hospital.lng,
+                          ),
+                        );
+                      },
+                      child: const Text("Submit New Crowd Level"),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-            ],
+            ),
           ),
         );
       },
