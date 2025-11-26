@@ -1,3 +1,4 @@
 {
-  "idf.pythonInstallPath": "/usr/bin/python3"
+  "idf.pythonInstallPath": "/usr/bin/python3",
+  "cmake.sourceDirectory": "D:/projects/flutter apps/wait_med/linux"
 }
