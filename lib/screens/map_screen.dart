@@ -71,10 +71,10 @@ class OpenStreetMapScreen extends StatelessWidget {
               final query = searchController.text.trim();
 
               if (query.isNotEmpty) {
-                // 🔥 Save to SQLite
+                //  Save to SQLite
                 await SearchHistoryService.saveSearch(query);
 
-                // 🔥 Run original search
+                //  Run original search
                 controller.searchHospitals(query);
 
                 print("Saved search: $query");

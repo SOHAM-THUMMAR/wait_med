@@ -209,7 +209,6 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
                   const SizedBox(height: 24),
 
-                  // ⭐ RECENT SEARCHES FROM SQLITE
                   FutureBuilder<List<String>>(
                     future: SearchHistoryService.getSearchHistory(),
                     builder: (context, snapshot) {
