@@ -1,153 +1,125 @@
 # WaitMed
 
-WaitMed is a Flutter mobile app designed to help users find nearby hospitals in real time, see crowd levels, and get direction assistance. Users can also submit crowd level reports for hospitals, aiding smarter decision making when seeking medical care.
+WaitMed is a Flutter-based mobile application designed to help users quickly find nearby hospitals, visualize them on a live map, and share real-time crowd information. The purpose of the app is to assist people in making faster and more informed decisions during medical emergencies or hospital visits.
 
 ---
 
-### 📌 Table of Contents
+## Features
 
-- [Features](#features)  
-- [Tech Stack](#tech-stack)  
-- [Architecture & Modules](#architecture--modules)  
-- [Getting Started](#getting-started)  
-  - [Prerequisites](#prerequisites)  
-  - [Setup & Run](#setup--run)  
-- [Folder Structure](#folder-structure)  
-- [How It Works](#how-it-works)  
-- [Future Enhancements](#future-enhancements)  
-- [Contributing](#contributing)  
-- [License](#license)  
+- Search hospitals by name or keyword  
+- Display hospitals as markers on an interactive map  
+- Detect and show the user's live location  
+- Allow users to submit crowd levels  
+- View crowd data for each hospital  
+- Smooth zoom and map navigation  
+- Modular and scalable Flutter architecture  
 
 ---
 
-### 🚀 Features
+## Tech Stack
 
-- Search hospitals by name or location  
-- Display search results as markers on a map  
-- Show user’s current location  
-- Submit crowd-level reports for hospitals  
-- Navigation & map interactions (zoom, pan)  
-- Modular, maintainable, and scalable architecture  
-
----
-
-### 🧰 Tech Stack
-
-- **Flutter** — UI & cross-platform app  
-- **flutter_map & latlong2** — for map rendering & geographic computations  
-- **GetX** — state management & navigation  
-- **HTTP (Dart)** — to call APIs (e.g. Nominatim)  
-- **Geolocator** — for getting user location  
-- **Firebase** (if used) — analytics, authentication, backend (if present)  
-
----
-
-### 🏗 Architecture & Modules
-
-WaitMed follows a modular structure:
-
-- **models/** — data models like `Hospital`  
-- **services/** — API & data fetch logic (e.g. hospital search)  
-- **controllers/** — application logic (state, map control)  
-- **widgets/** — reusable UI components (search bar, hospital marker, loading indicator)  
-- **screens/** — full screen UIs (map screen, submit crowd report screen)  
-- **core/** — theming, constants  
-
-This separation keeps UI, logic, and data decoupled and easier to maintain.
-
----
-
-### 🛠 Getting Started
-
-### Prerequisites
-
-Make sure you have:
-
-- Flutter SDK installed (>= stable release)  
+- Flutter  
 - Dart  
-- An emulator or physical device  
-- Internet access (for map tiles, APIs)  
+- GetX for state management  
+- flutter_map for maps  
+- latlong2 for coordinates  
+- Geolocator for live location  
+- HTTP for API calls  
+- Firebase (optional backend support)  
 
-### Setup & Run
+---
 
-Install dependencies
+## Folder Structure
 
+```
+lib/
+├── core/              # Constants, themes
+├── controllers/       # Logic and GetX controllers
+├── models/            # Data models
+├── services/          # APIs and network calls
+├── widgets/           # Reusable UI widgets
+├── screens/           # UI screens
+└── main.dart          # Entry point
+```
+
+---
+
+## Setup Guide
+
+### Requirements
+
+- Flutter SDK installed  
+- Android Studio / VS Code  
+- Emulator or real device  
+- Internet connection  
+
+---
+
+### Installation Steps
+
+Clone repository:
+```bash
+git clone https://github.com/SOHAM-THUMMAR/wait_med.git
+cd wait_med
+```
+
+Install packages:
+```bash
 flutter pub get
+```
 
+Add Android location permissions:
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+```
 
-Configure APIs / Permissions
+Add iOS location permission in Info.plist:
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>This app requires location to find nearby hospitals.</string>
+```
 
-Add location permissions in AndroidManifest.xml / Info.plist
-
-If using any API keys (e.g. Google Maps, Firebase), add them accordingly
-
-Ensure internet permission is allowed
-
-Run the app
-
+Run app:
+```bash
 flutter run
+```
 
-1. **Clone the repository**
+---
 
-   git clone https://github.com/SOHAM-THUMMAR/wait_med.git
-   cd wait_med
+## App Workflow
 
-### 🗂 Folder Structure
+1. Opens with a map centered on user's current position  
+2. User searches hospitals  
+3. API fetches hospital data  
+4. Hospitals appear as map markers  
+5. Users tap markers to check or submit crowd levels  
 
-Here’s a simplified view:
+---
 
-lib/<br>
-├── core/ <br>
-├── controllers/<br>
-├── models/<br>
-├── services/<br>
-├── widgets/<br>
-├── screens/<br>
-└── main.dart<br>
+## Planned Enhancements
 
+- Hospital list UI  
+- Advanced filters  
+- Navigation routing  
+- Firebase live crowd syncing  
+- Analytics dashboard  
+- Offline storage  
 
-Each folder has isolated responsibilities (UI vs logic vs data).
+---
 
-### 🔍 How It Works
+## Contribution Steps
 
-On the map screen, the user sees base hospital markers and their current location.
+```bash
+# Fork the repository
+# Create a new branch
+git checkout -b feature-name
 
-The user taps the search bar and submits a search term (e.g. “Apollo Hospital”).
+# Commit changes
+git commit -m "Added new feature"
 
-The app calls the Nominatim API (or other) to fetch hospital locations matching the query.
+# Push branch
+git push origin feature-name
+```
 
-It converts those into Hospital models, updates the controller state.
-
-Markers are rebuilt via the HospitalMarker widget.
-
-When tapping a marker, the user navigates to SubmitCrowdLevelScreen to view or submit crowd info.##
-
-### 📈 Future Enhancements
-
-Show a scrollable list of search results under the search bar
-
-Add filters (hospital type, distance, open hours)
-
-Use Google Places API (for better data)
-
-Implement offline caching for maps / hospital data
-
-Add user authentication & personalized history
-
-Display crowd trends / statistics
-
-Add directions / routing to a selected hospital
-
-### 👥 Contributing
-
-Fork the repo
-
-Create a feature branch (git checkout -b feature/your-feature)
-
-Make your changes & commit (git commit -m "Feature: …")
-
-Push to your fork (git push origin feature/your-feature)
-
-Open a Pull Request
-
-Please make sure code is clean, modular, and tested.
+Then open a Pull Request on GitHub.
